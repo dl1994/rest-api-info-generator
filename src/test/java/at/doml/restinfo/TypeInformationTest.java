@@ -11,7 +11,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
-public class TypeInformationTest {
+public final class TypeInformationTest {
     
     private final Map<Class<?>, String> typesToTest = new HashMap<>();
     
