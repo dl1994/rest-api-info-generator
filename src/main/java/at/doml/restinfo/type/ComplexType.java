@@ -16,19 +16,21 @@ final class ComplexType implements Type {
     public void write(TypeWriter writer) {
         TypeUtils.conditionalWrite(
                 writer,
-                TypeWriter::beforeAllComplexFields,
+                TypeWriter::writeBeforeAllComplexFields,
                 TypeWriter::shouldWriteComplexFields,
-                (wr) -> {
-                    this.fields.forEach((fieldName, fieldType) -> {
-                        TypeUtils.conditionalWrite(
-                                wr, fieldType,
-                                (w) -> w.beforeComplexField(fieldName),
-                                TypeWriter::shouldWriteComplexFieldType,
-                                (w) -> w.afterComplexField(fieldName)
-                        );
-                    });
-                },
-                TypeWriter::afterAllComplexFields
+                this::writeFields,
+                TypeWriter::writeAfterAllComplexFields
+        );
+    }
+    
+    private void writeFields(TypeWriter writer) {
+        this.fields.forEach((fieldName, fieldType) ->
+                TypeUtils.conditionalWrite(
+                        writer, fieldType,
+                        w -> w.writeBeforeComplexField(fieldName),
+                        TypeWriter::shouldWriteComplexFieldType,
+                        w -> w.writeAfterComplexField(fieldName)
+                )
         );
     }
 }

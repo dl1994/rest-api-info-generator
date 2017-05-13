@@ -7,7 +7,7 @@ final class EnumType implements Type {
     private final Enum<?>[] constants;
     
     EnumType(Enum<?>[] constants) {
-        this.constants = constants;
+        this.constants = constants.clone();
     }
     
     @Override

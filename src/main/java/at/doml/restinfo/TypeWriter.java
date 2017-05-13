@@ -32,17 +32,17 @@ public interface TypeWriter {
     
     void writeAfterMapValueType();
     
-    void beforeAllComplexFields();
+    void writeBeforeAllComplexFields();
     
     boolean shouldWriteComplexFields();
     
-    void beforeComplexField(String fieldName);
+    void writeBeforeComplexField(String fieldName);
     
     boolean shouldWriteComplexFieldType();
     
-    void afterComplexField(String fieldName);
+    void writeAfterComplexField(String fieldName);
     
-    void afterAllComplexFields();
+    void writeAfterAllComplexFields();
     
     void writeCustom(TypeInformation typeInformation);
 }
