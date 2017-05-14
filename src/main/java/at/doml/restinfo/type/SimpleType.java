@@ -2,7 +2,7 @@ package at.doml.restinfo.type;
 
 import at.doml.restinfo.TypeWriter;
 
-public enum PrimitiveType implements WritableType {
+public enum SimpleType implements WritableType {
     
     BYTE,
     SHORT,
@@ -15,10 +15,20 @@ public enum PrimitiveType implements WritableType {
     CHAR,
     STRING,
     BOOLEAN,
-    OBJECT;
+    OBJECT,
+    VOID,
+    BOXED_BYTE,
+    BOXED_SHORT,
+    BOXED_INT,
+    BOXED_LONG,
+    BOXED_FLOAT,
+    BOXED_DOUBLE,
+    BOXED_CHAR,
+    BOXED_BOOLEAN,
+    BOXED_VOID;
     
     @Override
     public void write(TypeWriter writer) {
-        writer.writePrimitive(this);
+        writer.writeSimple(this);
     }
 }

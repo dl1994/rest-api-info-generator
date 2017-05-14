@@ -1,10 +1,10 @@
 package at.doml.restinfo;
 
-import at.doml.restinfo.type.PrimitiveType;
+import at.doml.restinfo.type.SimpleType;
 
 public interface TypeWriter {
     
-    void writePrimitive(PrimitiveType type);
+    void writeSimple(SimpleType type);
     
     void writeEnum(Enum<?>[] enumConstants);
     

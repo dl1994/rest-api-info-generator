@@ -17,7 +17,7 @@ public final class TypeWriterTest extends AbstractTypeWriterMethodCallOrderTest 
     //
     @Test
     public void arrayTypeShouldCallCorrectWriteMethods() {
-        this.type = new ArrayType(PrimitiveType.INT);
+        this.type = new ArrayType(SimpleType.INT);
         this.testIfArrayOrCollectionTypeHaveCorrectCallOrder(
                 TypeWriter::writeBeforeArrayElementType,
                 TypeWriter::writeAfterArrayElementType,
@@ -27,7 +27,7 @@ public final class TypeWriterTest extends AbstractTypeWriterMethodCallOrderTest 
     
     @Test
     public void collectionTypeShouldCallCorrectWriteMethods() {
-        this.type = new CollectionType(PrimitiveType.INT);
+        this.type = new CollectionType(SimpleType.INT);
         this.testIfArrayOrCollectionTypeHaveCorrectCallOrder(
                 TypeWriter::writeBeforeCollectionElementType,
                 TypeWriter::writeAfterCollectionElementType,
@@ -40,7 +40,7 @@ public final class TypeWriterTest extends AbstractTypeWriterMethodCallOrderTest 
         this.type = new ComplexType();
         
         String fieldName = "number";
-        ((ComplexType) this.type).addField(fieldName, PrimitiveType.INT);
+        ((ComplexType) this.type).addField(fieldName, SimpleType.INT);
         CallOrderInfo callOrderInfo1 = this.defineRequiredCallOrder(
                 this.mockWriter,
                 TypeWriter::writeBeforeAllComplexFields
@@ -70,7 +70,7 @@ public final class TypeWriterTest extends AbstractTypeWriterMethodCallOrderTest 
     
     @Test
     public void mapTypeShouldCallCorrectWriteMethods() {
-        this.type = new MapType(PrimitiveType.INT, PrimitiveType.STRING);
+        this.type = new MapType(SimpleType.INT, SimpleType.STRING);
         
         CallOrderInfo callOrderInfo = this.defineRequiredCallOrder(
                 this.mockWriter,
@@ -106,9 +106,9 @@ public final class TypeWriterTest extends AbstractTypeWriterMethodCallOrderTest 
     }
     
     @Test
-    public void primitiveTypeShouldCallCorrectWriteMethod() {
-        this.type = PrimitiveType.INT;
-        this.callWriteMethodAndAssertThatCorrectMethodWasCalled(TypeWriter::writePrimitive, PrimitiveType.INT);
+    public void simpleTypeShouldCallCorrectWriteMethod() {
+        this.type = SimpleType.INT;
+        this.callWriteMethodAndAssertThatCorrectMethodWasCalled(TypeWriter::writeSimple, SimpleType.INT);
     }
     
     //
