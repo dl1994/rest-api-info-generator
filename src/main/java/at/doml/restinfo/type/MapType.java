@@ -2,12 +2,12 @@ package at.doml.restinfo.type;
 
 import at.doml.restinfo.TypeWriter;
 
-final class MapType implements Type {
+final class MapType implements WritableType {
     
-    private final Type keyType;
-    private final Type valueType;
+    private final WritableType keyType;
+    private final WritableType valueType;
     
-    MapType(Type keyType, Type valueType) {
+    MapType(WritableType keyType, WritableType valueType) {
         this.keyType = keyType;
         this.valueType = valueType;
     }

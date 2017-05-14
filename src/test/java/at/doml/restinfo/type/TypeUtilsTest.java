@@ -108,11 +108,11 @@ public final class TypeUtilsTest extends AbstractTypeWriterMethodCallOrderTest {
                 TypeWriter::writeBeforeAllComplexFields,
                 TypeWriter::writeBeforeArrayElementType
         );
-        Type mockType = mock(Type.class);
+        WritableType mockType = mock(WritableType.class);
         CallOrderInfo typeCallOrder = this.defineRequiredCallOrderWithValue(
                 mockType,
                 this.mockWriter,
-                Type::write
+                WritableType::write
         );
         CallOrderInfo typeWriterCallOrder2 = this.defineRequiredCallOrder(
                 this.mockWriter,

@@ -10,7 +10,7 @@ final class TypeUtils {
         // No instances of this class are possible
     }
     
-    static void conditionalWrite(TypeWriter writer, Type type, Consumer<TypeWriter> writeBefore,
+    static void conditionalWrite(TypeWriter writer, WritableType type, Consumer<TypeWriter> writeBefore,
                                  Function<TypeWriter, Boolean> writeTypeCondition, Consumer<TypeWriter> writeAfter) {
         conditionalWrite(writer, writeBefore, writeTypeCondition, type::write, writeAfter);
     }

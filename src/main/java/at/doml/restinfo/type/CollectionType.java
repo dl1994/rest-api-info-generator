@@ -4,7 +4,7 @@ import at.doml.restinfo.TypeWriter;
 
 final class CollectionType extends CollectionOrArrayType {
     
-    CollectionType(Type elementType) {
+    CollectionType(WritableType elementType) {
         super(elementType);
     }
     

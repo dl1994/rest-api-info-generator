@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 
 public final class TypeWriterTest extends AbstractTypeWriterMethodCallOrderTest {
     
-    private Type type;
+    private WritableType type;
     
     //
     // TESTS

@@ -2,7 +2,7 @@ package at.doml.restinfo.type;
 
 import at.doml.restinfo.TypeWriter;
 
-public enum PrimitiveType implements Type {
+public enum PrimitiveType implements WritableType {
     
     BYTE,
     SHORT,

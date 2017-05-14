@@ -2,7 +2,7 @@ package at.doml.restinfo.type;
 
 public final class TypeTreeGenerator {
     
-    public Type generateTree() {
+    public WritableType generateTree() {
         return null; // TODO
     }
 }

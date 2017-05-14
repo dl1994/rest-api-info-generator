@@ -2,7 +2,7 @@ package at.doml.restinfo.type;
 
 import at.doml.restinfo.TypeWriter;
 
-public interface Type {
+public interface WritableType {
     
     void write(TypeWriter writer);
 }

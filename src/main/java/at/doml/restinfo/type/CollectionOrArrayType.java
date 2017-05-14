@@ -2,11 +2,11 @@ package at.doml.restinfo.type;
 
 import at.doml.restinfo.TypeWriter;
 
-abstract class CollectionOrArrayType implements Type {
+abstract class CollectionOrArrayType implements WritableType {
     
-    private final Type elementType;
+    private final WritableType elementType;
     
-    CollectionOrArrayType(Type elementType) {
+    CollectionOrArrayType(WritableType elementType) {
         this.elementType = elementType;
     }
     

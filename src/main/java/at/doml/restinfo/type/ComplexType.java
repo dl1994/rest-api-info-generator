@@ -4,11 +4,11 @@ import at.doml.restinfo.TypeWriter;
 import java.util.HashMap;
 import java.util.Map;
 
-final class ComplexType implements Type {
+final class ComplexType implements WritableType {
     
-    private final Map<String, Type> fields = new HashMap<>();
+    private final Map<String, WritableType> fields = new HashMap<>();
     
-    void addField(String fieldName, Type fieldType) {
+    void addField(String fieldName, WritableType fieldType) {
         this.fields.put(fieldName, fieldType);
     }
     

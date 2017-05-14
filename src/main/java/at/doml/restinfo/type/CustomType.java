@@ -3,7 +3,7 @@ package at.doml.restinfo.type;
 import at.doml.restinfo.TypeInformation;
 import at.doml.restinfo.TypeWriter;
 
-final class CustomType implements Type {
+final class CustomType implements WritableType {
     
     private final TypeInformation typeInformation;
     

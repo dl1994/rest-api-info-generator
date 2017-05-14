@@ -2,7 +2,7 @@ package at.doml.restinfo.type;
 
 import at.doml.restinfo.TypeWriter;
 
-final class EnumType implements Type {
+final class EnumType implements WritableType {
     
     private final Enum<?>[] constants;
     
