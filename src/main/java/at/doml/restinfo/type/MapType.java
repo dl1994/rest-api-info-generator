@@ -1,34 +1,34 @@
 package at.doml.restinfo.type;
 
-import at.doml.restinfo.TypeWriter;
+import at.doml.restinfo.TypeVisitor;
 
-final class MapType implements WritableType {
+final class MapType implements VisitableType {
     
-    final WritableType keyType;
-    final WritableType valueType;
+    final VisitableType keyType;
+    final VisitableType valueType;
     
     MapType() {
         this(null, null);
     }
     
-    MapType(WritableType keyType, WritableType valueType) {
+    MapType(VisitableType keyType, VisitableType valueType) {
         this.keyType = keyType;
         this.valueType = valueType;
     }
     
     @Override
-    public void write(TypeWriter writer) {
-        TypeUtils.conditionalWrite(
-                writer, this.keyType,
-                TypeWriter::writeBeforeMapKeyType,
-                TypeWriter::shouldWriteMapKeyType,
-                TypeWriter::writeAfterMapKeyType
+    public void visit(TypeVisitor visitor) {
+        TypeUtils.conditionalVisit(
+                visitor, this.keyType,
+                TypeVisitor::visitBeforeMapKeyType,
+                TypeVisitor::shouldVisitMapKeyType,
+                TypeVisitor::visitAfterMapKeyType
         );
-        TypeUtils.conditionalWrite(
-                writer, this.valueType,
-                TypeWriter::writeBeforeMapValueType,
-                TypeWriter::shouldWriteMapValueType,
-                TypeWriter::writeAfterMapValueType
+        TypeUtils.conditionalVisit(
+                visitor, this.valueType,
+                TypeVisitor::visitBeforeMapValueType,
+                TypeVisitor::shouldVisitMapValueType,
+                TypeVisitor::visitAfterMapValueType
         );
     }
 }

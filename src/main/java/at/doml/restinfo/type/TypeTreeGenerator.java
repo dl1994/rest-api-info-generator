@@ -30,7 +30,7 @@ public final class TypeTreeGenerator {
         this.customClasses.remove(clazz);
     }
     
-    public WritableType generateTree(Type type) {
+    public VisitableType generateTree(Type type) {
         return null; // TODO
     }
 }

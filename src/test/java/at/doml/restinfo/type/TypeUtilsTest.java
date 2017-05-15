@@ -1,72 +1,72 @@
 package at.doml.restinfo.type;
 
-import at.doml.restinfo.TypeWriter;
+import at.doml.restinfo.TypeVisitor;
 import org.junit.Test;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
-public final class TypeUtilsTest extends AbstractTypeWriterMethodCallOrderTest {
+public final class TypeUtilsTest extends AbstractTypeVisitorMethodCallOrderTest {
     
     //
     // TESTS
     //
     @Test
-    public void conditionalWriteShouldCallCorrectBeforeAndAfterMethods() {
+    public void conditionalVisitShouldCallCorrectBeforeAndAfterMethods() {
         CallOrderInfo callOrderInfo = this.defineRequiredCallOrder(
-                this.mockWriter,
-                TypeWriter::writeBeforeAllComplexFields,
-                TypeWriter::writeAfterAllComplexFields
+                this.mockVisitor,
+                TypeVisitor::visitBeforeAllComplexFields,
+                TypeVisitor::visitAfterAllComplexFields
         );
         
         this.initializeOrderObject(callOrderInfo);
         
-        TypeUtils.conditionalWrite(
-                this.mockWriter,
-                TypeWriter::writeBeforeAllComplexFields,
+        TypeUtils.conditionalVisit(
+                this.mockVisitor,
+                TypeVisitor::visitBeforeAllComplexFields,
                 ignored -> false,
                 ignored -> {},
-                TypeWriter::writeAfterAllComplexFields
+                TypeVisitor::visitAfterAllComplexFields
         );
         
         this.assertMethodCallOrder(callOrderInfo);
     }
     
     @Test
-    public void conditionalWriteShouldCallOnConditionMethodOnTrueCondition() {
+    public void conditionalVisitShouldCallOnConditionMethodOnTrueCondition() {
         CallOrderInfo callOrderInfo = this.defineRequiredCallOrder(
-                this.mockWriter,
-                TypeWriter::writeBeforeAllComplexFields,
-                TypeWriter::writeBeforeArrayElementType,
-                TypeWriter::writeAfterAllComplexFields
+                this.mockVisitor,
+                TypeVisitor::visitBeforeAllComplexFields,
+                TypeVisitor::visitBeforeArrayElementType,
+                TypeVisitor::visitAfterAllComplexFields
         );
         
         this.initializeOrderObject(callOrderInfo);
         
-        TypeUtils.conditionalWrite(
-                this.mockWriter,
-                TypeWriter::writeBeforeAllComplexFields,
+        TypeUtils.conditionalVisit(
+                this.mockVisitor,
+                TypeVisitor::visitBeforeAllComplexFields,
                 ignored -> true,
-                TypeWriter::writeBeforeArrayElementType,
-                TypeWriter::writeAfterAllComplexFields
+                TypeVisitor::visitBeforeArrayElementType,
+                TypeVisitor::visitAfterAllComplexFields
         );
         
         this.assertMethodCallOrder(callOrderInfo);
     }
     
     @Test
-    public void conditionalWriteShouldCallMethodToCheckCondition() {
+    public void conditionalVisitShouldCallMethodToCheckCondition() {
         CallOrderInfo callOrderInfo = this.defineRequiredCallOrder(
-                this.mockWriter,
-                TypeWriter::writeBeforeAllComplexFields
+                this.mockVisitor,
+                TypeVisitor::visitBeforeAllComplexFields
         );
         
         this.initializeOrderObject(callOrderInfo);
         
-        TypeUtils.conditionalWrite(
-                this.mockWriter,
+        TypeUtils.conditionalVisit(
+                this.mockVisitor,
                 ignored -> {},
-                writer -> {
-                    writer.writeBeforeAllComplexFields();
+                visitor -> {
+                    visitor.visitBeforeAllComplexFields();
                     return false;
                 },
                 ignored -> {},
@@ -77,61 +77,61 @@ public final class TypeUtilsTest extends AbstractTypeWriterMethodCallOrderTest {
     }
     
     @Test
-    public void conditionalWriteOnConditionMethodShouldNotBeCalledIfConditionIsFalse() {
+    public void conditionalVisitOnConditionMethodShouldNotBeCalledIfConditionIsFalse() {
         CallOrderInfo callOrderInfo = this.defineRequiredCallOrder(
-                this.mockWriter,
-                TypeWriter::writeBeforeAllComplexFields,
-                TypeWriter::writeBeforeArrayElementType,
-                TypeWriter::writeAfterAllComplexFields
+                this.mockVisitor,
+                TypeVisitor::visitBeforeAllComplexFields,
+                TypeVisitor::visitBeforeArrayElementType,
+                TypeVisitor::visitAfterAllComplexFields
         );
         
         this.initializeOrderObject(callOrderInfo);
         
-        TypeUtils.conditionalWrite(
-                this.mockWriter,
-                TypeWriter::writeBeforeAllComplexFields,
-                writer -> {
-                    writer.writeBeforeArrayElementType();
+        TypeUtils.conditionalVisit(
+                this.mockVisitor,
+                TypeVisitor::visitBeforeAllComplexFields,
+                visitor -> {
+                    visitor.visitBeforeArrayElementType();
                     return false;
                 },
                 ignored -> fail("this was not supposed to be called"), // should not be called
-                TypeWriter::writeAfterAllComplexFields
+                TypeVisitor::visitAfterAllComplexFields
         );
         
         this.assertMethodCallOrder(callOrderInfo);
     }
     
     @Test
-    public void conditionalWriteWithTypeShouldCallWriteMethodOnGivenType() {
-        CallOrderInfo typeWriterCallOrder1 = this.defineRequiredCallOrder(
-                this.mockWriter,
-                TypeWriter::writeBeforeAllComplexFields,
-                TypeWriter::writeBeforeArrayElementType
+    public void conditionalVisitWithTypeShouldCallVisitMethodOnGivenType() {
+        CallOrderInfo typeVisitorCallOrder1 = this.defineRequiredCallOrder(
+                this.mockVisitor,
+                TypeVisitor::visitBeforeAllComplexFields,
+                TypeVisitor::visitBeforeArrayElementType
         );
-        WritableType mockType = mock(WritableType.class);
+        VisitableType mockType = mock(VisitableType.class);
         CallOrderInfo typeCallOrder = this.defineRequiredCallOrderWithValue(
                 mockType,
-                this.mockWriter,
-                WritableType::write
+                this.mockVisitor,
+                VisitableType::visit
         );
-        CallOrderInfo typeWriterCallOrder2 = this.defineRequiredCallOrder(
-                this.mockWriter,
-                TypeWriter::writeAfterAllComplexFields
+        CallOrderInfo typeVisitorCallOrder2 = this.defineRequiredCallOrder(
+                this.mockVisitor,
+                TypeVisitor::visitAfterAllComplexFields
         );
         
-        this.initializeOrderObject(typeWriterCallOrder1, typeCallOrder, typeWriterCallOrder2);
+        this.initializeOrderObject(typeVisitorCallOrder1, typeCallOrder, typeVisitorCallOrder2);
         
-        TypeUtils.conditionalWrite(
-                this.mockWriter,
+        TypeUtils.conditionalVisit(
+                this.mockVisitor,
                 mockType,
-                TypeWriter::writeBeforeAllComplexFields,
-                writer -> {
-                    writer.writeBeforeArrayElementType();
+                TypeVisitor::visitBeforeAllComplexFields,
+                visitor -> {
+                    visitor.visitBeforeArrayElementType();
                     return true;
                 },
-                TypeWriter::writeAfterAllComplexFields
+                TypeVisitor::visitAfterAllComplexFields
         );
         
-        this.assertMethodCallOrder(typeWriterCallOrder1, typeCallOrder, typeWriterCallOrder2);
+        this.assertMethodCallOrder(typeVisitorCallOrder1, typeCallOrder, typeVisitorCallOrder2);
     }
 }

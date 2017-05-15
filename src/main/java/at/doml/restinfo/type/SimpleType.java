@@ -1,8 +1,8 @@
 package at.doml.restinfo.type;
 
-import at.doml.restinfo.TypeWriter;
+import at.doml.restinfo.TypeVisitor;
 
-public enum SimpleType implements WritableType {
+public enum SimpleType implements VisitableType {
     
     BYTE,
     SHORT,
@@ -28,7 +28,7 @@ public enum SimpleType implements WritableType {
     BOXED_VOID;
     
     @Override
-    public void write(TypeWriter writer) {
-        writer.writeSimple(this);
+    public void visit(TypeVisitor visitor) {
+        visitor.visitSimple(this);
     }
 }

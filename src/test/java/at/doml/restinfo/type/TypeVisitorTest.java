@@ -1,113 +1,113 @@
 package at.doml.restinfo.type;
 
-import at.doml.restinfo.TypeWriter;
+import at.doml.restinfo.TypeVisitor;
 import org.junit.Test;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import static org.mockito.Mockito.when;
 
-public final class TypeWriterTest extends AbstractTypeWriterMethodCallOrderTest {
+public final class TypeVisitorTest extends AbstractTypeVisitorMethodCallOrderTest {
     
-    private WritableType type;
+    private VisitableType type;
     
     //
     // TESTS
     //
     @Test
-    public void arrayTypeShouldCallCorrectWriteMethods() {
+    public void arrayTypeShouldCallCorrectVisitMethods() {
         this.type = new ArrayType(SimpleType.INT);
         this.testIfArrayOrCollectionTypeHaveCorrectCallOrder(
-                TypeWriter::writeBeforeArrayElementType,
-                TypeWriter::writeAfterArrayElementType,
-                TypeWriter::shouldWriteArrayElementType
+                TypeVisitor::visitBeforeArrayElementType,
+                TypeVisitor::visitAfterArrayElementType,
+                TypeVisitor::shouldVisitArrayElementType
         );
     }
     
     @Test
-    public void collectionTypeShouldCallCorrectWriteMethods() {
+    public void collectionTypeShouldCallCorrectVisitMethods() {
         this.type = new CollectionType(SimpleType.INT);
         this.testIfArrayOrCollectionTypeHaveCorrectCallOrder(
-                TypeWriter::writeBeforeCollectionElementType,
-                TypeWriter::writeAfterCollectionElementType,
-                TypeWriter::shouldWriteCollectionElementType
+                TypeVisitor::visitBeforeCollectionElementType,
+                TypeVisitor::visitAfterCollectionElementType,
+                TypeVisitor::shouldVisitCollectionElementType
         );
     }
     
     @Test
-    public void complexTypeShouldCallCorrectWriteMethods() {
+    public void complexTypeShouldCallCorrectVisitMethods() {
         this.type = new ComplexType();
         
         String fieldName = "number";
         ((ComplexType) this.type).addField(fieldName, SimpleType.INT);
         CallOrderInfo callOrderInfo1 = this.defineRequiredCallOrder(
-                this.mockWriter,
-                TypeWriter::writeBeforeAllComplexFields
+                this.mockVisitor,
+                TypeVisitor::visitBeforeAllComplexFields
         );
         CallOrderInfo callOrderInfo2 = this.defineRequiredCallOrderWithValue(
-                this.mockWriter,
+                this.mockVisitor,
                 fieldName,
-                TypeWriter::writeBeforeComplexField,
-                TypeWriter::writeAfterComplexField
+                TypeVisitor::visitBeforeComplexField,
+                TypeVisitor::visitAfterComplexField
         );
         CallOrderInfo callOrderInfo3 = this.defineRequiredCallOrder(
-                this.mockWriter,
-                TypeWriter::writeAfterAllComplexFields
+                this.mockVisitor,
+                TypeVisitor::visitAfterAllComplexFields
         );
         CallOrderInfo conditionalInfo = this.defineConditionalCallOrder(
-                TypeWriter::shouldWriteComplexFields,
-                TypeWriter::shouldWriteComplexFieldType
+                TypeVisitor::shouldVisitComplexFields,
+                TypeVisitor::shouldVisitComplexFieldType
         );
         
-        when(this.mockWriter.shouldWriteComplexFields()).thenReturn(true);
+        when(this.mockVisitor.shouldVisitComplexFields()).thenReturn(true);
         this.initializeOrderObject(callOrderInfo1, callOrderInfo2, callOrderInfo3);
         this.initializeConditionalOrderObject(conditionalInfo);
-        this.type.write(this.mockWriter);
+        this.type.visit(this.mockVisitor);
         this.assertMethodCallOrder(callOrderInfo1, callOrderInfo2, callOrderInfo3);
         this.assertConditionalCallOrder(conditionalInfo);
     }
     
     @Test
-    public void mapTypeShouldCallCorrectWriteMethods() {
+    public void mapTypeShouldCallCorrectVisitMethods() {
         this.type = new MapType(SimpleType.INT, SimpleType.STRING);
         
         CallOrderInfo callOrderInfo = this.defineRequiredCallOrder(
-                this.mockWriter,
-                TypeWriter::writeBeforeMapKeyType,
-                TypeWriter::writeAfterMapKeyType,
-                TypeWriter::writeBeforeMapValueType,
-                TypeWriter::writeAfterMapValueType
+                this.mockVisitor,
+                TypeVisitor::visitBeforeMapKeyType,
+                TypeVisitor::visitAfterMapKeyType,
+                TypeVisitor::visitBeforeMapValueType,
+                TypeVisitor::visitAfterMapValueType
         );
         CallOrderInfo conditionalInfo = this.defineConditionalCallOrder(
-                TypeWriter::shouldWriteMapKeyType,
-                TypeWriter::shouldWriteMapValueType
+                TypeVisitor::shouldVisitMapKeyType,
+                TypeVisitor::shouldVisitMapValueType
         );
         
         this.initializeOrderObject(callOrderInfo);
         this.initializeConditionalOrderObject(conditionalInfo);
-        this.type.write(this.mockWriter);
+        this.type.visit(this.mockVisitor);
         this.assertMethodCallOrder(callOrderInfo);
         this.assertConditionalCallOrder(conditionalInfo);
     }
     
     @Test
-    public void customTypeShouldCallCorrectWriteMethod() {
-        Class<?> testCustomClass = TypeWriter.class;
+    public void customTypeShouldCallCorrectVisitMethod() {
+        Class<?> testCustomClass = TypeVisitor.class;
         
         this.type = new CustomType(testCustomClass);
-        this.callWriteMethodAndAssertThatCorrectMethodWasCalled(TypeWriter::writeCustom, TypeWriter.class);
+        this.callVisitMethodAndAssertThatCorrectMethodWasCalled(TypeVisitor::visitCustom, TypeVisitor.class);
     }
     
     @Test
-    public void enumTypeShouldCallCorrectWriteMethod() {
+    public void enumTypeShouldCallCorrectVisitMethod() {
         this.type = new EnumType(TestEnum.values());
-        this.callWriteMethodAndAssertThatCorrectMethodWasCalled(TypeWriter::writeEnum, TestEnum.values());
+        this.callVisitMethodAndAssertThatCorrectMethodWasCalled(TypeVisitor::visitEnum, TestEnum.values());
     }
     
     @Test
-    public void simpleTypeShouldCallCorrectWriteMethod() {
+    public void simpleTypeShouldCallCorrectVisitMethod() {
         this.type = SimpleType.INT;
-        this.callWriteMethodAndAssertThatCorrectMethodWasCalled(TypeWriter::writeSimple, SimpleType.INT);
+        this.callVisitMethodAndAssertThatCorrectMethodWasCalled(TypeVisitor::visitSimple, SimpleType.INT);
     }
     
     //
@@ -120,33 +120,33 @@ public final class TypeWriterTest extends AbstractTypeWriterMethodCallOrderTest 
     //
     // HELPER METHODS
     //
-    private void callWriteMethodAndAssertThatCorrectMethodWasCalled(Consumer<TypeWriter> expectedMethod) {
+    private void callVisitMethodAndAssertThatCorrectMethodWasCalled(Consumer<TypeVisitor> expectedMethod) {
         this.verifyCallOrderForSingleMethod(
-                this.defineRequiredCallOrder(this.mockWriter, expectedMethod)
+                this.defineRequiredCallOrder(this.mockVisitor, expectedMethod)
         );
     }
     
-    private <U> void callWriteMethodAndAssertThatCorrectMethodWasCalled(BiConsumer<TypeWriter, U> expectedMethod,
+    private <U> void callVisitMethodAndAssertThatCorrectMethodWasCalled(BiConsumer<TypeVisitor, U> expectedMethod,
                                                                         U argument) {
         this.verifyCallOrderForSingleMethod(
                 this.defineRequiredCallOrder(
-                        this.mockWriter,
-                        writer -> expectedMethod.accept(writer, argument)
+                        this.mockVisitor,
+                        visitor -> expectedMethod.accept(visitor, argument)
                 )
         );
     }
     
     private void verifyCallOrderForSingleMethod(CallOrderInfo callOrderInfo) {
         this.initializeOrderObject(callOrderInfo);
-        this.type.write(this.mockWriter);
+        this.type.visit(this.mockVisitor);
         this.assertMethodCallOrder(callOrderInfo);
     }
     
-    private void testIfArrayOrCollectionTypeHaveCorrectCallOrder(Consumer<TypeWriter> firstCall,
-                                                                 Consumer<TypeWriter> secondCall,
-                                                                 Function<TypeWriter, Boolean> conditional) {
+    private void testIfArrayOrCollectionTypeHaveCorrectCallOrder(Consumer<TypeVisitor> firstCall,
+                                                                 Consumer<TypeVisitor> secondCall,
+                                                                 Function<TypeVisitor, Boolean> conditional) {
         CallOrderInfo callOrderInfo = this.defineRequiredCallOrder(
-                this.mockWriter,
+                this.mockVisitor,
                 firstCall,
                 secondCall
         );
@@ -156,7 +156,7 @@ public final class TypeWriterTest extends AbstractTypeWriterMethodCallOrderTest 
         
         this.initializeOrderObject(callOrderInfo);
         this.initializeConditionalOrderObject(conditionalInfo);
-        this.type.write(this.mockWriter);
+        this.type.visit(this.mockVisitor);
         this.assertMethodCallOrder(callOrderInfo);
         this.assertConditionalCallOrder(conditionalInfo);
     }

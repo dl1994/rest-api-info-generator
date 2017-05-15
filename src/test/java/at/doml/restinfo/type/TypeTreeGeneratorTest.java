@@ -213,9 +213,9 @@ public final class TypeTreeGeneratorTest {
     // PRIVATE CLASSES
     //
     private static final class TypeTreeStub {
-        private final WritableType tree;
+        private final VisitableType tree;
         
-        private TypeTreeStub(WritableType tree) {
+        private TypeTreeStub(VisitableType tree) {
             this.tree = tree;
         }
         

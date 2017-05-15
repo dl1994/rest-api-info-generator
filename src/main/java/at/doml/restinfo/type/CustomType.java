@@ -1,8 +1,8 @@
 package at.doml.restinfo.type;
 
-import at.doml.restinfo.TypeWriter;
+import at.doml.restinfo.TypeVisitor;
 
-final class CustomType implements WritableType {
+final class CustomType implements VisitableType {
     
     final Class<?> customClass;
     
@@ -11,7 +11,7 @@ final class CustomType implements WritableType {
     }
     
     @Override
-    public void write(TypeWriter writer) {
-        writer.writeCustom(this.customClass);
+    public void visit(TypeVisitor visitor) {
+        visitor.visitCustom(this.customClass);
     }
 }

@@ -1,8 +1,8 @@
 package at.doml.restinfo.type;
 
-import at.doml.restinfo.TypeWriter;
+import at.doml.restinfo.TypeVisitor;
 
-final class EnumType implements WritableType {
+final class EnumType implements VisitableType {
     
     final Enum<?>[] constants;
     
@@ -11,7 +11,7 @@ final class EnumType implements WritableType {
     }
     
     @Override
-    public void write(TypeWriter writer) {
-        writer.writeEnum(this.constants.clone());
+    public void visit(TypeVisitor visitor) {
+        visitor.visitEnum(this.constants.clone());
     }
 }

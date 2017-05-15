@@ -3,7 +3,7 @@ package at.doml.restinfo.type;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 
-abstract class TypeTreeChecker<T extends WritableType> {
+abstract class TypeTreeChecker<T extends VisitableType> {
     
     final T expectedType;
     
@@ -12,7 +12,7 @@ abstract class TypeTreeChecker<T extends WritableType> {
     }
     
     @SuppressWarnings("unchecked")
-    void assertType(WritableType actualType) {
+    void assertType(VisitableType actualType) {
         assertNotNull("actual type is null", actualType);
         assertSame("type classes are not same", this.expectedType.getClass(), actualType.getClass());
         

@@ -1,6 +1,6 @@
 package at.doml.restinfo.type;
 
-import at.doml.restinfo.TypeWriter;
+import at.doml.restinfo.TypeVisitor;
 
 final class ArrayType extends CollectionOrArrayType {
     
@@ -8,22 +8,22 @@ final class ArrayType extends CollectionOrArrayType {
         this(null);
     }
     
-    ArrayType(WritableType elementType) {
+    ArrayType(VisitableType elementType) {
         super(elementType);
     }
     
     @Override
-    void writeBefore(TypeWriter writer) {
-        writer.writeBeforeArrayElementType();
+    void visitBefore(TypeVisitor visitor) {
+        visitor.visitBeforeArrayElementType();
     }
     
     @Override
-    boolean shouldWriteElementType(TypeWriter writer) {
-        return writer.shouldWriteArrayElementType();
+    boolean shouldVisitElementType(TypeVisitor visitor) {
+        return visitor.shouldVisitArrayElementType();
     }
     
     @Override
-    void writeAfter(TypeWriter writer) {
-        writer.writeAfterArrayElementType();
+    void visitAfter(TypeVisitor visitor) {
+        visitor.visitAfterArrayElementType();
     }
 }

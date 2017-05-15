@@ -1,28 +1,28 @@
 package at.doml.restinfo.type;
 
-import at.doml.restinfo.TypeWriter;
+import at.doml.restinfo.TypeVisitor;
 
-abstract class CollectionOrArrayType implements WritableType {
+abstract class CollectionOrArrayType implements VisitableType {
     
-    final WritableType elementType;
+    final VisitableType elementType;
     
-    CollectionOrArrayType(WritableType elementType) {
+    CollectionOrArrayType(VisitableType elementType) {
         this.elementType = elementType;
     }
     
     @Override
-    public final void write(TypeWriter writer) {
-        TypeUtils.conditionalWrite(
-                writer, this.elementType,
-                this::writeBefore,
-                this::shouldWriteElementType,
-                this::writeAfter
+    public final void visit(TypeVisitor visitor) {
+        TypeUtils.conditionalVisit(
+                visitor, this.elementType,
+                this::visitBefore,
+                this::shouldVisitElementType,
+                this::visitAfter
         );
     }
     
-    abstract void writeBefore(TypeWriter writer);
+    abstract void visitBefore(TypeVisitor visitor);
     
-    abstract boolean shouldWriteElementType(TypeWriter writer);
+    abstract boolean shouldVisitElementType(TypeVisitor visitor);
     
-    abstract void writeAfter(TypeWriter writer);
+    abstract void visitAfter(TypeVisitor visitor);
 }

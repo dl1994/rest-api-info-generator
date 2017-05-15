@@ -1,35 +1,35 @@
 package at.doml.restinfo.type;
 
-import at.doml.restinfo.TypeWriter;
+import at.doml.restinfo.TypeVisitor;
 import java.util.HashMap;
 import java.util.Map;
 
-final class ComplexType implements WritableType {
+final class ComplexType implements VisitableType {
     
-    final Map<String, WritableType> fields = new HashMap<>();
+    final Map<String, VisitableType> fields = new HashMap<>();
     
-    void addField(String fieldName, WritableType fieldType) {
+    void addField(String fieldName, VisitableType fieldType) {
         this.fields.put(fieldName, fieldType);
     }
     
     @Override
-    public void write(TypeWriter writer) {
-        TypeUtils.conditionalWrite(
-                writer,
-                TypeWriter::writeBeforeAllComplexFields,
-                TypeWriter::shouldWriteComplexFields,
-                this::writeFields,
-                TypeWriter::writeAfterAllComplexFields
+    public void visit(TypeVisitor visitor) {
+        TypeUtils.conditionalVisit(
+                visitor,
+                TypeVisitor::visitBeforeAllComplexFields,
+                TypeVisitor::shouldVisitComplexFields,
+                this::visitFields,
+                TypeVisitor::visitAfterAllComplexFields
         );
     }
     
-    private void writeFields(TypeWriter writer) {
+    private void visitFields(TypeVisitor visitor) {
         this.fields.forEach((fieldName, fieldType) ->
-                TypeUtils.conditionalWrite(
-                        writer, fieldType,
-                        w -> w.writeBeforeComplexField(fieldName),
-                        TypeWriter::shouldWriteComplexFieldType,
-                        w -> w.writeAfterComplexField(fieldName)
+                TypeUtils.conditionalVisit(
+                        visitor, fieldType,
+                        v -> v.visitBeforeComplexField(fieldName),
+                        TypeVisitor::shouldVisitComplexFieldType,
+                        v -> v.visitAfterComplexField(fieldName)
                 )
         );
     }

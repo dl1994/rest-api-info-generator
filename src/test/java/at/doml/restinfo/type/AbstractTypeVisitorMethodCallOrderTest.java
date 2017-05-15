@@ -1,6 +1,6 @@
 package at.doml.restinfo.type;
 
-import at.doml.restinfo.TypeWriter;
+import at.doml.restinfo.TypeVisitor;
 import org.mockito.InOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,14 +14,14 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 
-abstract class AbstractTypeWriterMethodCallOrderTest {
+abstract class AbstractTypeVisitorMethodCallOrderTest {
     
-    final TypeWriter mockWriter = mock(TypeWriter.class);
+    final TypeVisitor mockVisitor = mock(TypeVisitor.class);
     
     private InOrder inOrderMock;
     private InOrder conditionalOrderMock;
     private final Collection<Consumer<Object>> callOrder = new ArrayList<>();
-    private final Collection<Function<TypeWriter, Boolean>> conditionalOrder = new ArrayList<>();
+    private final Collection<Function<TypeVisitor, Boolean>> conditionalOrder = new ArrayList<>();
     
     //
     // STATIC CLASSES
@@ -64,13 +64,13 @@ abstract class AbstractTypeWriterMethodCallOrderTest {
     
     @SafeVarargs
     @SuppressWarnings("unchecked")
-    final CallOrderInfo defineConditionalCallOrder(Function<TypeWriter, Boolean>... conditionalCalls) {
-        for (Function<TypeWriter, Boolean> conditionalCall : conditionalCalls) {
+    final CallOrderInfo defineConditionalCallOrder(Function<TypeVisitor, Boolean>... conditionalCalls) {
+        for (Function<TypeVisitor, Boolean> conditionalCall : conditionalCalls) {
             this.conditionalOrder.add(conditionalCall);
-            conditionalCall.apply(doReturn(false).when(this.mockWriter));
+            conditionalCall.apply(doReturn(false).when(this.mockVisitor));
         }
         
-        return new CallOrderInfo(this.mockWriter, conditionalCalls.length);
+        return new CallOrderInfo(this.mockVisitor, conditionalCalls.length);
     }
     
     void initializeOrderObject(CallOrderInfo... callOrderInfos) {
@@ -122,7 +122,7 @@ abstract class AbstractTypeWriterMethodCallOrderTest {
         assertOrder(
                 this.conditionalOrder,
                 (conditionalCall, object) ->
-                        conditionalCall.apply(this.conditionalOrderMock.verify((TypeWriter) object)),
+                        conditionalCall.apply(this.conditionalOrderMock.verify((TypeVisitor) object)),
                 callOrderInfos
         );
     }

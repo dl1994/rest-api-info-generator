@@ -1,6 +1,6 @@
 package at.doml.restinfo.type;
 
-import at.doml.restinfo.TypeWriter;
+import at.doml.restinfo.TypeVisitor;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -10,20 +10,20 @@ final class TypeUtils {
         // No instances of this class are possible
     }
     
-    static void conditionalWrite(TypeWriter writer, WritableType type, Consumer<TypeWriter> writeBefore,
-                                 Function<TypeWriter, Boolean> writeTypeCondition, Consumer<TypeWriter> writeAfter) {
-        conditionalWrite(writer, writeBefore, writeTypeCondition, type::write, writeAfter);
+    static void conditionalVisit(TypeVisitor visitor, VisitableType type, Consumer<TypeVisitor> visitBefore,
+                                 Function<TypeVisitor, Boolean> visitTypeCondition, Consumer<TypeVisitor> visitAfter) {
+        conditionalVisit(visitor, visitBefore, visitTypeCondition, type::visit, visitAfter);
     }
     
-    static void conditionalWrite(TypeWriter writer, Consumer<TypeWriter> writeBefore,
-                                 Function<TypeWriter, Boolean> condition, Consumer<TypeWriter> onCondition,
-                                 Consumer<TypeWriter> writeAfter) {
-        writeBefore.accept(writer);
+    static void conditionalVisit(TypeVisitor visitor, Consumer<TypeVisitor> visitBefore,
+                                 Function<TypeVisitor, Boolean> condition, Consumer<TypeVisitor> onCondition,
+                                 Consumer<TypeVisitor> visitAfter) {
+        visitBefore.accept(visitor);
         
-        if (condition.apply(writer)) {
-            onCondition.accept(writer);
+        if (condition.apply(visitor)) {
+            onCondition.accept(visitor);
         }
         
-        writeAfter.accept(writer);
+        visitAfter.accept(visitor);
     }
 }
