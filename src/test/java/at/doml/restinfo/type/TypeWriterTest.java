@@ -1,6 +1,5 @@
 package at.doml.restinfo.type;
 
-import at.doml.restinfo.TypeInformation;
 import at.doml.restinfo.TypeWriter;
 import org.junit.Test;
 import java.util.function.BiConsumer;
@@ -93,10 +92,10 @@ public final class TypeWriterTest extends AbstractTypeWriterMethodCallOrderTest 
     
     @Test
     public void customTypeShouldCallCorrectWriteMethod() {
-        TypeInformation testTypeInformation = new TypeInformation("int");
+        Class<?> testCustomClass = TypeWriter.class;
         
-        this.type = new CustomType(testTypeInformation);
-        this.callWriteMethodAndAssertThatCorrectMethodWasCalled(TypeWriter::writeCustom, testTypeInformation);
+        this.type = new CustomType(testCustomClass);
+        this.callWriteMethodAndAssertThatCorrectMethodWasCalled(TypeWriter::writeCustom, TypeWriter.class);
     }
     
     @Test

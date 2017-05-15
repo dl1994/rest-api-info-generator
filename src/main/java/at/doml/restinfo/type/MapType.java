@@ -4,8 +4,12 @@ import at.doml.restinfo.TypeWriter;
 
 final class MapType implements WritableType {
     
-    private final WritableType keyType;
-    private final WritableType valueType;
+    final WritableType keyType;
+    final WritableType valueType;
+    
+    MapType() {
+        this(null, null);
+    }
     
     MapType(WritableType keyType, WritableType valueType) {
         this.keyType = keyType;

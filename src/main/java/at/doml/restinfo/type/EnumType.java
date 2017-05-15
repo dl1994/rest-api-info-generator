@@ -4,7 +4,7 @@ import at.doml.restinfo.TypeWriter;
 
 final class EnumType implements WritableType {
     
-    private final Enum<?>[] constants;
+    final Enum<?>[] constants;
     
     EnumType(Enum<?>[] constants) {
         this.constants = constants.clone();

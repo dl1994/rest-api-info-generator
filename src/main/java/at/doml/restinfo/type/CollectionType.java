@@ -4,6 +4,10 @@ import at.doml.restinfo.TypeWriter;
 
 final class CollectionType extends CollectionOrArrayType {
     
+    CollectionType() {
+        this(null);
+    }
+    
     CollectionType(WritableType elementType) {
         super(elementType);
     }

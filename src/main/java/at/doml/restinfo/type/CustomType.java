@@ -1,18 +1,17 @@
 package at.doml.restinfo.type;
 
-import at.doml.restinfo.TypeInformation;
 import at.doml.restinfo.TypeWriter;
 
 final class CustomType implements WritableType {
     
-    private final TypeInformation typeInformation;
+    final Class<?> customClass;
     
-    CustomType(TypeInformation typeInformation) {
-        this.typeInformation = typeInformation;
+    CustomType(Class<?> customClass) {
+        this.customClass = customClass;
     }
     
     @Override
     public void write(TypeWriter writer) {
-        writer.writeCustom(this.typeInformation);
+        writer.writeCustom(this.customClass);
     }
 }

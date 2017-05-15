@@ -44,5 +44,5 @@ public interface TypeWriter {
     
     void writeAfterAllComplexFields();
     
-    void writeCustom(TypeInformation typeInformation);
+    void writeCustom(Class<?> customClass);
 }

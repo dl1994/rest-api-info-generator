@@ -6,7 +6,7 @@ import java.util.Map;
 
 final class ComplexType implements WritableType {
     
-    private final Map<String, WritableType> fields = new HashMap<>();
+    final Map<String, WritableType> fields = new HashMap<>();
     
     void addField(String fieldName, WritableType fieldType) {
         this.fields.put(fieldName, fieldType);

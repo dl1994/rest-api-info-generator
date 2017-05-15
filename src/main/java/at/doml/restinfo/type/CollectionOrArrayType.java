@@ -4,7 +4,7 @@ import at.doml.restinfo.TypeWriter;
 
 abstract class CollectionOrArrayType implements WritableType {
     
-    private final WritableType elementType;
+    final WritableType elementType;
     
     CollectionOrArrayType(WritableType elementType) {
         this.elementType = elementType;

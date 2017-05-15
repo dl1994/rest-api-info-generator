@@ -118,11 +118,10 @@ public final class TypeInformationTest {
         });
     }
     
-    private interface TestTypeInformation {}
-    
     @Test
     public void typeWithSingleTypeParameterShouldHaveCorrectHierarchy() {
-        TypeInformation typeInformation = typeInformationFor(new TestTypeInformation() {
+        TypeInformation typeInformation = typeInformationFromTestObject(new Object() {
+            @SuppressWarnings("unused")
             public List<String> test;
         });
         
@@ -137,7 +136,8 @@ public final class TypeInformationTest {
     
     @Test
     public void typeWithSingleNestedTypeParameterShouldHaveCorrectHierarchy() {
-        TypeInformation typeInformation = typeInformationFor(new TestTypeInformation() {
+        TypeInformation typeInformation = typeInformationFromTestObject(new Object() {
+            @SuppressWarnings("unused")
             public List<Set<Collection<String>>> test;
         });
         
@@ -158,7 +158,8 @@ public final class TypeInformationTest {
     
     @Test
     public void typeWithMultipleTypeParametersShouldHaveCorrectHierarchy() {
-        TypeInformation typeInformation = typeInformationFor(new TestTypeInformation() {
+        TypeInformation typeInformation = typeInformationFromTestObject(new Object() {
+            @SuppressWarnings("unused")
             public Map<String, Integer> test;
         });
         
@@ -174,7 +175,8 @@ public final class TypeInformationTest {
     
     @Test
     public void typeWithMultipleNestedTypeParametersShouldHaveCorrectHierarchy() {
-        TypeInformation typeInformation = typeInformationFor(new TestTypeInformation() {
+        TypeInformation typeInformation = typeInformationFromTestObject(new Object() {
+            @SuppressWarnings("unused")
             public Map<Long, Map<String, Map<Map<Character, Short>, List<Boolean>>>> test;
         });
         
@@ -205,7 +207,8 @@ public final class TypeInformationTest {
     
     @Test
     public void arrayTypesWithSingleTypeParameterShouldHaveCorrectHierarchy() {
-        TypeInformation typeInformation = typeInformationFor(new TestTypeInformation() {
+        TypeInformation typeInformation = typeInformationFromTestObject(new Object() {
+            @SuppressWarnings("unused")
             public List<String>[] test;
         });
         
@@ -217,7 +220,8 @@ public final class TypeInformationTest {
                 typeInformation
         );
         
-        typeInformation = typeInformationFor(new TestTypeInformation() {
+        typeInformation = typeInformationFromTestObject(new Object() {
+            @SuppressWarnings("unused")
             public Set<Integer>[][][] test;
         });
         
@@ -232,7 +236,8 @@ public final class TypeInformationTest {
     
     @Test
     public void typesWithSingleArrayTypeParameterShouldHaveCorrectHierarchy() {
-        TypeInformation typeInformation = typeInformationFor(new TestTypeInformation() {
+        TypeInformation typeInformation = typeInformationFromTestObject(new Object() {
+            @SuppressWarnings("unused")
             public List<String[]> test;
         });
         
@@ -244,7 +249,8 @@ public final class TypeInformationTest {
                 typeInformation
         );
         
-        typeInformation = typeInformationFor(new TestTypeInformation() {
+        typeInformation = typeInformationFromTestObject(new Object() {
+            @SuppressWarnings("unused")
             public Set<Integer[][][]> test;
         });
         
@@ -259,7 +265,8 @@ public final class TypeInformationTest {
     
     @Test
     public void arrayTypesWithMultipleNestedArrayTypeParametersShouldHaveCorrectHierarchy() {
-        TypeInformation typeInformation = typeInformationFor(new TestTypeInformation() {
+        TypeInformation typeInformation = typeInformationFromTestObject(new Object() {
+            @SuppressWarnings("unused")
             public Map<Long[], Map<Map<Character[], Short>[][][], boolean[][]>>[][][][][] test;
         });
         
@@ -297,19 +304,18 @@ public final class TypeInformationTest {
         return new TypeInformation(type, typeParameters, arrayDimension);
     }
     
-    private static TypeInformation typeInformationFor(TestTypeInformation testTypeInformation) {
+    private static TypeInformation typeInformationFromTestObject(Object object) {
         try {
             return new TypeInformation(
-                    testTypeInformation.getClass()
+                    object.getClass()
                             .getField("test")
                             .getGenericType()
                             .getTypeName()
             );
-        } catch (NoSuchFieldException ignored) {
+        } catch (NoSuchFieldException e) {
             fail("provided object has no field named \"test\" from which to fetch type information");
+            throw new RuntimeException(e); // to make compiler happy
         }
-        
-        return null;
     }
     
     private void testTypes(BiConsumer<String, TypeInformation> assertions) {
