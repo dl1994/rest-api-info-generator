@@ -3,14 +3,14 @@ package at.doml.restinfo.type;
 import at.doml.restinfo.TypeInformation;
 import at.doml.restinfo.TypeVisitor;
 
-final class CustomType extends CustomOrUnknownType {
+final class UnknownType extends CustomOrUnknownType {
     
-    CustomType(TypeInformation customTypeInformation) {
+    UnknownType(TypeInformation customTypeInformation) {
         super(customTypeInformation);
     }
     
     @Override
     public void visit(TypeVisitor visitor) {
-        visitor.visitCustom(this.typeInformation);
+        visitor.visitUnknown(this.typeInformation);
     }
 }

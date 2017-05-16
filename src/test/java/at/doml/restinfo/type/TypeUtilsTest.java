@@ -94,7 +94,7 @@ public final class TypeUtilsTest extends AbstractTypeVisitorMethodCallOrderTest 
                     visitor.visitBeforeArrayElementType();
                     return false;
                 },
-                ignored -> fail("this was not supposed to be called"), // should not be called
+                ignored -> fail("this was not supposed to be called"),
                 TypeVisitor::visitAfterAllComplexFields
         );
         

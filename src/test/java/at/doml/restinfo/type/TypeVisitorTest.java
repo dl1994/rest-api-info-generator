@@ -1,5 +1,6 @@
 package at.doml.restinfo.type;
 
+import at.doml.restinfo.TypeInformation;
 import at.doml.restinfo.TypeVisitor;
 import org.junit.Test;
 import java.util.function.BiConsumer;
@@ -92,10 +93,18 @@ public final class TypeVisitorTest extends AbstractTypeVisitorMethodCallOrderTes
     
     @Test
     public void customTypeShouldCallCorrectVisitMethod() {
-        Class<?> testCustomClass = TypeVisitor.class;
+        TypeInformation testTypeInformation = new TypeInformation("int", new TypeInformation[0], 0);
         
-        this.type = new CustomType(testCustomClass);
-        this.callVisitMethodAndAssertThatCorrectMethodWasCalled(TypeVisitor::visitCustom, TypeVisitor.class);
+        this.type = new CustomType(testTypeInformation);
+        this.callVisitMethodAndAssertThatCorrectMethodWasCalled(TypeVisitor::visitCustom, testTypeInformation);
+    }
+    
+    @Test
+    public void unknownTypeShouldCallCorrectVisitMethod() {
+        TypeInformation testTypeInformation = new TypeInformation("unknown", new TypeInformation[0], 0);
+        
+        this.type = new UnknownType(testTypeInformation);
+        this.callVisitMethodAndAssertThatCorrectMethodWasCalled(TypeVisitor::visitUnknown, testTypeInformation);
     }
     
     @Test

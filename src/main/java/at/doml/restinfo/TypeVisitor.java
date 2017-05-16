@@ -44,5 +44,7 @@ public interface TypeVisitor {
     
     void visitAfterAllComplexFields();
     
-    void visitCustom(Class<?> customClass);
+    void visitCustom(TypeInformation customTypeInformation);
+    
+    void visitUnknown(TypeInformation unknownTypeInformation);
 }
