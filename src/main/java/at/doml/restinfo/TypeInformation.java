@@ -28,7 +28,7 @@ public final class TypeInformation {
                 ? new TypeInformation[0]
                 : Arrays.stream(splitTypeParameters(
                 CLOSING_DIAMOND_REMOVAL_PATTERN.matcher(split[1]).replaceAll("")))
-                .map(TypeInformation::new)
+                .map(t -> new TypeInformation(t, typeParameterMappings))
                 .toArray(TypeInformation[]::new);
     }
     
