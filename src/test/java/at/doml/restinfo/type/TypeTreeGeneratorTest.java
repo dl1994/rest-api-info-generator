@@ -1,7 +1,6 @@
 package at.doml.restinfo.type;
 
 import at.doml.restinfo.TypeInformation;
-import org.junit.Ignore;
 import org.junit.Test;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
@@ -195,14 +194,13 @@ public final class TypeTreeGeneratorTest {
     }
     
     @Test
-    @Ignore // TODO reactivate this test after successful implementation
-    public void complexTypeWithGenericTypeParametersShouldGenerateCorrectTypeTree() {
+    public void complexTypeWithGenericTypeParametersShouldGenerateCorrectTypeTreeForFirstOrderGenerics() {
         this.initGenerator();
         final class GenericTestType<F, S> {
             @SuppressWarnings("unused")
             public F genericField1;
             @SuppressWarnings("unused")
-            public List<S> genericField2;
+            public S genericField2;
         }
         
         this.treeFor(new Object() {
@@ -212,8 +210,42 @@ public final class TypeTreeGeneratorTest {
                 complex(
                         field("genericType", complex(
                                 field("genericField1", collection(simple(SimpleType.STRING))),
-                                field("genericField2", collection(array(simple(SimpleType.LONG))))
+                                field("genericField2", array(simple(SimpleType.BOXED_LONG)))
                         ))
+                )
+        );
+    }
+    
+    @Test
+    public void complexTypeWithGenericTypeParametersShouldGenerateCorrectTypeTreeForDeepOrderGenerics() {
+        this.initGenerator();
+        final class GenericTestType<F, S> {
+            @SuppressWarnings("unused")
+            public Map<F, S> genericField1;
+            @SuppressWarnings("unused")
+            public Map<S, List<F>> genericField2;
+        }
+        
+        this.treeFor(new Object() {
+            @SuppressWarnings("unused")
+            public GenericTestType<int[], long[]> genericType;
+        }.getClass()).assertStructure(
+                complex(
+                        field("genericType", complex(
+                                field("genericField1",
+                                        map(
+                                                array(simple(SimpleType.INT)),
+                                                array(simple(SimpleType.LONG))
+                                        )
+                                ),
+                                field("genericField2",
+                                        map(
+                                                array(simple(SimpleType.LONG)),
+                                                collection(array(simple(SimpleType.INT))
+                                                )
+                                        )
+                                ))
+                        )
                 )
         );
     }

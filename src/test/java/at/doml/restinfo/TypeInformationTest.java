@@ -288,6 +288,18 @@ public final class TypeInformationTest {
         );
     }
     
+    @Test
+    public void typeInformationShouldHaveCorrectToStringImplementation() throws NoSuchFieldException {
+        Object object = new Object() {
+            @SuppressWarnings("unused")
+            public Map<Long, Map<String, Map<Map<Character, Short>, List<Boolean>>>> test;
+        };
+        TypeInformation typeInformation = typeInformationFromTestObject(object);
+        String expectedString = object.getClass().getField("test").getGenericType().getTypeName();
+        
+        assertEquals("TypeInformation has incorrect toString method", expectedString, typeInformation.toString());
+    }
+    
     //
     // HELPER METHODS
     //

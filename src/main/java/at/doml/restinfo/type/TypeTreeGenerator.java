@@ -212,13 +212,13 @@ public final class TypeTreeGenerator {
         Field[] publicFields = clazz.getFields();
         Method[] publicMethods = clazz.getMethods();
         ComplexType complexType = new ComplexType();
-        Map<String, String> typeParameterMappings = new HashMap<>(); // TODO needs to be Map<String, TypeInformation>
+        Map<String, String> typeParameterMappings = new HashMap<>();
         TypeVariable<?>[] genericTypeParameters = clazz.getTypeParameters();
         TypeInformation[] actualTypeParameters = typeInformation.getTypeParameters();
         
         int limit = Math.min(genericTypeParameters.length, actualTypeParameters.length);
         for (int i = 0; i < limit; i++) {
-            typeParameterMappings.put(genericTypeParameters[i].getTypeName(), actualTypeParameters[i].getType());
+            typeParameterMappings.put(genericTypeParameters[i].toString(), actualTypeParameters[i].toString());
         }
         
         for (Field publicField : publicFields) {

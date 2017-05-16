@@ -17,13 +17,13 @@ public final class TypeInformation {
     private static final Pattern CLOSING_DIAMOND_REMOVAL_PATTERN = Pattern.compile(">(\\[])*$");
     
     public TypeInformation(String type, Map<String, String> typeParameterMappings) {
-        String trimmedType = type.trim();
-        String[] split = trimmedType.split("<", 2);
+        String typeToHandle = extractTypeFromMap(type.trim(), typeParameterMappings);
+        String[] split = typeToHandle.split("<", 2);
         
-        this.arrayDimension = findArrayDimension(trimmedType);
-        this.type = extractTypeFromMap(this.arrayDimension > 0
+        this.arrayDimension = findArrayDimension(typeToHandle);
+        this.type = this.arrayDimension > 0
                 ? ARRAY_REMOVAL_PATTERN.matcher(split[0]).replaceAll("")
-                : split[0], typeParameterMappings);
+                : split[0];
         this.typeParameters = split.length == 1
                 ? new TypeInformation[0]
                 : Arrays.stream(splitTypeParameters(
@@ -107,5 +107,38 @@ public final class TypeInformation {
     
     public int getArrayDimension() {
         return this.arrayDimension;
+    }
+    
+    @Override
+    public String toString() {
+        return this.type + this.stringifyTypeParameters() + this.stringifyArrayBrackets();
+    }
+    
+    private String stringifyTypeParameters() {
+        if (this.typeParameters.length == 0) {
+            return "";
+        }
+        
+        StringBuilder builder = new StringBuilder("<");
+        
+        for (TypeInformation typeParameter : this.typeParameters) {
+            builder.append(typeParameter.toString())
+                    .append(", ");
+        }
+        
+        int length = builder.length();
+        return builder.delete(length - 2, length)
+                .append('>')
+                .toString();
+    }
+    
+    private String stringifyArrayBrackets() {
+        StringBuilder builder = new StringBuilder();
+        
+        for (int i = 0; i < this.arrayDimension; i++) {
+            builder.append("[]");
+        }
+        
+        return builder.toString();
     }
 }
