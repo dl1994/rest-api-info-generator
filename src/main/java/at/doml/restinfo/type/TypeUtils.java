@@ -10,9 +10,10 @@ final class TypeUtils {
         // No instances of this class are possible
     }
     
-    static void conditionalVisit(TypeVisitor visitor, VisitableType type, Consumer<TypeVisitor> visitBefore,
-                                 Function<TypeVisitor, Boolean> visitTypeCondition, Consumer<TypeVisitor> visitAfter) {
-        conditionalVisit(visitor, visitBefore, visitTypeCondition, type::visit, visitAfter);
+    static void conditionalVisitForType(TypeVisitor visitor, VisitableType type, Consumer<TypeVisitor> visitBefore,
+                                        Function<TypeVisitor, Boolean> visitTypeCondition,
+                                        Consumer<TypeVisitor> visitAfter) {
+        conditionalVisit(visitor, visitBefore, visitTypeCondition, type, visitAfter);
     }
     
     static void conditionalVisit(TypeVisitor visitor, Consumer<TypeVisitor> visitBefore,

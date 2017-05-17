@@ -11,7 +11,7 @@ final class EnumType implements VisitableType {
     }
     
     @Override
-    public void visit(TypeVisitor visitor) {
+    public void accept(TypeVisitor visitor) {
         visitor.visitEnum(this.constants.clone());
     }
 }

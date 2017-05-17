@@ -63,7 +63,7 @@ public final class TypeVisitorTest extends AbstractTypeVisitorMethodCallOrderTes
         when(this.mockVisitor.shouldVisitComplexFields()).thenReturn(true);
         this.initializeOrderObject(callOrderInfo1, callOrderInfo2, callOrderInfo3);
         this.initializeConditionalOrderObject(conditionalInfo);
-        this.type.visit(this.mockVisitor);
+        this.type.accept(this.mockVisitor);
         this.assertMethodCallOrder(callOrderInfo1, callOrderInfo2, callOrderInfo3);
         this.assertConditionalCallOrder(conditionalInfo);
     }
@@ -86,7 +86,7 @@ public final class TypeVisitorTest extends AbstractTypeVisitorMethodCallOrderTes
         
         this.initializeOrderObject(callOrderInfo);
         this.initializeConditionalOrderObject(conditionalInfo);
-        this.type.visit(this.mockVisitor);
+        this.type.accept(this.mockVisitor);
         this.assertMethodCallOrder(callOrderInfo);
         this.assertConditionalCallOrder(conditionalInfo);
     }
@@ -147,7 +147,7 @@ public final class TypeVisitorTest extends AbstractTypeVisitorMethodCallOrderTes
     
     private void verifyCallOrderForSingleMethod(CallOrderInfo callOrderInfo) {
         this.initializeOrderObject(callOrderInfo);
-        this.type.visit(this.mockVisitor);
+        this.type.accept(this.mockVisitor);
         this.assertMethodCallOrder(callOrderInfo);
     }
     
@@ -165,7 +165,7 @@ public final class TypeVisitorTest extends AbstractTypeVisitorMethodCallOrderTes
         
         this.initializeOrderObject(callOrderInfo);
         this.initializeConditionalOrderObject(conditionalInfo);
-        this.type.visit(this.mockVisitor);
+        this.type.accept(this.mockVisitor);
         this.assertMethodCallOrder(callOrderInfo);
         this.assertConditionalCallOrder(conditionalInfo);
     }

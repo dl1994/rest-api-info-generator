@@ -10,7 +10,7 @@ final class CustomType extends CustomOrUnknownType {
     }
     
     @Override
-    public void visit(TypeVisitor visitor) {
+    public void accept(TypeVisitor visitor) {
         visitor.visitCustom(this.typeInformation);
     }
 }

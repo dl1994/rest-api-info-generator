@@ -135,7 +135,7 @@ public final class TypeTreeGeneratorTest {
     
     @Test
     public void complexTypeShouldHaveCorrectFieldTypesAndNamesInTypeTreeWhenUsingGetters() {
-        this.initGenerator(TypeTreeGenerator.Mode.EXTRACT_GETTERS);
+        this.initGenerator(TypeTreeGenerator.MethodFieldExtraction.EXTRACT_GETTERS);
         this.treeFor(WITH_GETTERS_AND_SETTERS.getClass()).assertStructure(
                 complex(
                         field("shared", simple(SimpleType.BOOLEAN)),
@@ -147,7 +147,7 @@ public final class TypeTreeGeneratorTest {
     
     @Test
     public void complexTypeShouldHaveCorrectFieldTypesAndNamesInTypeTreeWhenUsingSetters() {
-        this.initGenerator(TypeTreeGenerator.Mode.EXTRACT_SETTERS);
+        this.initGenerator(TypeTreeGenerator.MethodFieldExtraction.EXTRACT_SETTERS);
         this.treeFor(WITH_GETTERS_AND_SETTERS.getClass()).assertStructure(
                 complex(
                         field("shared", simple(SimpleType.BOOLEAN)),
@@ -159,7 +159,7 @@ public final class TypeTreeGeneratorTest {
     
     @Test
     public void complexTypeShouldHaveCorrectFieldTypesAndNamesInTypeTreeWhenNotUsingGettersAndSetters() {
-        this.initGenerator(TypeTreeGenerator.Mode.NONE);
+        this.initGenerator(TypeTreeGenerator.MethodFieldExtraction.NONE);
         this.treeFor(WITH_GETTERS_AND_SETTERS.getClass()).assertStructure(
                 complex(
                         field("shared", simple(SimpleType.BOOLEAN))
@@ -332,7 +332,7 @@ public final class TypeTreeGeneratorTest {
             public String getTypeName() {
                 return "unknown";
             }
-        }).assertStructure(unknown("unknown"));
+        }).assertStructure(unknown());
     }
     
     @Test
@@ -377,8 +377,8 @@ public final class TypeTreeGeneratorTest {
         this.generator = new TypeTreeGenerator();
     }
     
-    private void initGenerator(TypeTreeGenerator.Mode mode) {
-        this.generator = new TypeTreeGenerator(mode);
+    private void initGenerator(TypeTreeGenerator.MethodFieldExtraction methodFieldExtraction) {
+        this.generator = new TypeTreeGenerator(methodFieldExtraction);
     }
     
     private void initGenerator(TypeTreeGenerator.UnknownTypeHandling unknownTypeHandling) {
@@ -428,8 +428,8 @@ public final class TypeTreeGeneratorTest {
         return customOrUnknown(typeName, CustomType::new);
     }
     
-    private static TypeTreeChecker unknown(String typeName) {
-        return customOrUnknown(typeName, UnknownType::new);
+    private static TypeTreeChecker unknown() {
+        return customOrUnknown("unknown", UnknownType::new);
     }
     
     private static TypeTreeChecker customOrUnknown(String typeName,

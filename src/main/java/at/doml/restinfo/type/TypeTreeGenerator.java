@@ -14,15 +14,20 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.regex.Pattern;
+import static at.doml.restinfo.util.Util.METHOD_FIELD_EXTRACTION_NOT_NULL;
+import static at.doml.restinfo.util.Util.TYPE_NOT_NULL;
+import static at.doml.restinfo.util.Util.UNKNOWN_TYPE_HANDLING_NOT_NULL;
 
 public final class TypeTreeGenerator {
     
     //
     // CONSTANTS
     //
-    private static final Mode DEFAULT_MODE = Mode.EXTRACT_BOTH;
+    private static final MethodFieldExtraction DEFAULT_METHOD_FIELD_EXTRACTION = MethodFieldExtraction.EXTRACT_BOTH;
     private static final UnknownTypeHandling DEFAULT_UNKNOWN_TYPE_HANDLING = UnknownTypeHandling.THROW_EXCEPTION;
     private static final Map<String, SimpleType> SIMPLE_TYPE_MAPPINGS = new HashMap<>();
+    private static final Pattern GETTER_SETTER_REMOVAL_PATTERN = Pattern.compile("^(get|is|set)");
     
     static {
         addSimpleMapping(byte.class, SimpleType.BYTE);
@@ -52,25 +57,25 @@ public final class TypeTreeGenerator {
     //
     // CONSTRUCTORS AND MEMBER VARIABLES
     //
-    private final Mode mode;
+    private final MethodFieldExtraction methodFieldExtraction;
     private final UnknownTypeHandling unknownTypeHandling;
     private final Set<String> customTypes = new HashSet<>();
     
     public TypeTreeGenerator() {
-        this(DEFAULT_MODE, DEFAULT_UNKNOWN_TYPE_HANDLING);
+        this(DEFAULT_METHOD_FIELD_EXTRACTION, DEFAULT_UNKNOWN_TYPE_HANDLING);
     }
     
-    public TypeTreeGenerator(Mode mode) {
-        this(mode, DEFAULT_UNKNOWN_TYPE_HANDLING);
+    public TypeTreeGenerator(MethodFieldExtraction methodFieldExtraction) {
+        this(methodFieldExtraction, DEFAULT_UNKNOWN_TYPE_HANDLING);
     }
     
     public TypeTreeGenerator(UnknownTypeHandling unknownTypeHandling) {
-        this(DEFAULT_MODE, unknownTypeHandling);
+        this(DEFAULT_METHOD_FIELD_EXTRACTION, unknownTypeHandling);
     }
     
-    public TypeTreeGenerator(Mode mode, UnknownTypeHandling unknownTypeHandling) {
-        this.mode = mode;
-        this.unknownTypeHandling = unknownTypeHandling;
+    public TypeTreeGenerator(MethodFieldExtraction methodFieldExtraction, UnknownTypeHandling unknownTypeHandling) {
+        this.methodFieldExtraction = Objects.requireNonNull(methodFieldExtraction, METHOD_FIELD_EXTRACTION_NOT_NULL);
+        this.unknownTypeHandling = Objects.requireNonNull(unknownTypeHandling, UNKNOWN_TYPE_HANDLING_NOT_NULL);
     }
     
     //
@@ -81,7 +86,7 @@ public final class TypeTreeGenerator {
     }
     
     private static String getFieldName(String methodName) {
-        String withoutGetterSetterPrefix = methodName.replaceAll("^(get|is|set)", "");
+        String withoutGetterSetterPrefix = GETTER_SETTER_REMOVAL_PATTERN.matcher(methodName).replaceAll("");
         
         if (withoutGetterSetterPrefix.length() > 1) {
             return Character.toLowerCase(withoutGetterSetterPrefix.charAt(0)) + withoutGetterSetterPrefix.substring(1);
@@ -93,6 +98,10 @@ public final class TypeTreeGenerator {
     private static boolean isVoid(Method method) {
         Class<?> returnType = method.getReturnType();
         return Objects.equals(returnType, void.class) || Objects.equals(returnType, Void.class);
+    }
+    
+    private static String getTypeName(Type type) {
+        return Objects.requireNonNull(type, TYPE_NOT_NULL).getTypeName();
     }
     
     //
@@ -111,8 +120,16 @@ public final class TypeTreeGenerator {
         @Override
         public boolean canFetchFrom(Method method) {
             String name = method.getName();
-            return method.getParameters().length == 0 && !isVoid(method) && !Objects.equals(name, "getClass")
-                    && (name.startsWith("get") || name.startsWith("is"));
+            return hasNoParameters(method) && !isVoid(method) && hasGetterName(name);
+        }
+        
+        private static boolean hasNoParameters(Method method) {
+            return method.getParameters().length == 0;
+        }
+        
+        private static boolean hasGetterName(String methodName) {
+            return !Objects.equals(methodName, "getClass") &&
+                    (methodName.startsWith("get") || methodName.startsWith("is"));
         }
         
         @Override
@@ -127,7 +144,11 @@ public final class TypeTreeGenerator {
         
         @Override
         public boolean canFetchFrom(Method method) {
-            return method.getParameters().length == 1 && isVoid(method) && method.getName().startsWith("set");
+            return hasOneParameter(method) && isVoid(method) && method.getName().startsWith("set");
+        }
+        
+        private static boolean hasOneParameter(Method method) {
+            return method.getParameters().length == 1;
         }
         
         @Override
@@ -137,7 +158,7 @@ public final class TypeTreeGenerator {
         }
     }
     
-    public enum Mode {
+    public enum MethodFieldExtraction {
         NONE(),
         EXTRACT_GETTERS(GetterFieldFetcher.INSTANCE),
         EXTRACT_SETTERS(SetterFieldFetcher.INSTANCE),
@@ -145,7 +166,7 @@ public final class TypeTreeGenerator {
         
         private final ClassFieldFetcher[] fetchers;
         
-        Mode(ClassFieldFetcher... fetchers) {
+        MethodFieldExtraction(ClassFieldFetcher... fetchers) {
             this.fetchers = fetchers;
         }
     }
@@ -166,21 +187,59 @@ public final class TypeTreeGenerator {
     // INSTANCE METHODS
     //
     public void registerCustomType(Type type) {
-        this.customTypes.add(type.getTypeName());
+        this.customTypes.add(getTypeName(type));
     }
     
     public void removeCustomType(Type type) {
-        this.customTypes.remove(type.getTypeName());
+        this.customTypes.remove(getTypeName(type));
     }
     
-    @SuppressWarnings("unchecked")
     public VisitableType generateTree(Type type) {
-        return this.generateTree(new TypeInformation(type.getTypeName()));
+        return this.generateTree(new TypeInformation(getTypeName(type)));
     }
     
     //
     // PRIVATE METHODS
     //
+    private VisitableType generateTree(TypeInformation typeInformation) {
+        if (typeInformation.isArray()) {
+            return this.generateTreeForArray(typeInformation);
+        }
+        
+        String type = typeInformation.getType();
+        SimpleType simpleType = SIMPLE_TYPE_MAPPINGS.get(type);
+        
+        if (simpleType != null) {
+            return simpleType;
+        }
+        
+        if (this.customTypes.contains(type)) {
+            return new CustomType(typeInformation);
+        }
+        
+        try {
+            return this.handleClass(Class.forName(type), typeInformation);
+        } catch (ClassNotFoundException exception) {
+            return this.unknownTypeHandling.handler.apply(typeInformation, new UnknownTypeException(type, exception));
+        }
+    }
+    
+    private VisitableType handleClass(Class<?> clazz, TypeInformation typeInformation) {
+        if (clazz.isEnum()) {
+            return new EnumType((Enum<?>[]) clazz.getEnumConstants());
+        }
+        
+        if (Collection.class.isAssignableFrom(clazz)) {
+            return this.generateTreeForCollection(typeInformation);
+        }
+        
+        if (Map.class.isAssignableFrom(clazz)) {
+            return this.generateTreeForMap(typeInformation);
+        }
+        
+        return this.generateTreeForComplexClass(clazz, typeInformation);
+    }
+    
     private VisitableType generateTreeForArray(TypeInformation typeInformation) {
         return new ArrayType(
                 this.generateTree(
@@ -207,11 +266,17 @@ public final class TypeTreeGenerator {
         );
     }
     
-    // TODO refactor this
     private VisitableType generateTreeForComplexClass(Class<?> clazz, TypeInformation typeInformation) {
-        Field[] publicFields = clazz.getFields();
-        Method[] publicMethods = clazz.getMethods();
         ComplexType complexType = new ComplexType();
+        Map<String, String> typeParameterMappings = createTypeParameterMappings(clazz, typeInformation);
+        
+        this.addFieldsToComplexType(clazz, typeParameterMappings, complexType);
+        this.addFieldsFromMethodsToComplexType(clazz, typeParameterMappings, complexType);
+        
+        return complexType;
+    }
+    
+    private static Map<String, String> createTypeParameterMappings(Class<?> clazz, TypeInformation typeInformation) {
         Map<String, String> typeParameterMappings = new HashMap<>();
         TypeVariable<?>[] genericTypeParameters = clazz.getTypeParameters();
         TypeInformation[] actualTypeParameters = typeInformation.getTypeParameters();
@@ -221,14 +286,26 @@ public final class TypeTreeGenerator {
             typeParameterMappings.put(genericTypeParameters[i].toString(), actualTypeParameters[i].toString());
         }
         
+        return typeParameterMappings;
+    }
+    
+    private void addFieldsToComplexType(Class<?> clazz, Map<String, String> typeParameterMappings,
+                                        ComplexType complexType) {
+        Field[] publicFields = clazz.getFields();
+        
         for (Field publicField : publicFields) {
             complexType.addField(publicField.getName(), this.generateTree(
                     new TypeInformation(publicField.getGenericType().getTypeName(), typeParameterMappings)
             ));
         }
+    }
+    
+    private void addFieldsFromMethodsToComplexType(Class<?> clazz, Map<String, String> typeParameterMappings,
+                                                   ComplexType complexType) {
+        Method[] publicMethods = clazz.getMethods();
         
         for (Method publicMethod : publicMethods) {
-            for (ClassFieldFetcher fetcher : this.mode.fetchers) {
+            for (ClassFieldFetcher fetcher : this.methodFieldExtraction.fetchers) {
                 if (fetcher.canFetchFrom(publicMethod)) {
                     complexType.addField(getFieldName(publicMethod.getName()), this.generateTree(
                             fetcher.fetchField(publicMethod, typeParameterMappings)
@@ -236,47 +313,5 @@ public final class TypeTreeGenerator {
                 }
             }
         }
-        
-        return complexType;
-    }
-    
-    @SuppressWarnings("unchecked")
-    private VisitableType generateTree(TypeInformation typeInformation) {
-        if (typeInformation.isArray()) {
-            return this.generateTreeForArray(typeInformation);
-        }
-        
-        String type = typeInformation.getType();
-        SimpleType simpleType = SIMPLE_TYPE_MAPPINGS.get(type);
-        
-        if (simpleType != null) {
-            return simpleType;
-        }
-        
-        if (this.customTypes.contains(type)) {
-            return new CustomType(typeInformation);
-        }
-        
-        Class<?> clazz;
-        
-        try {
-            clazz = Class.forName(type);
-        } catch (ClassNotFoundException exception) {
-            return this.unknownTypeHandling.handler.apply(typeInformation, new UnknownTypeException(type, exception));
-        }
-        
-        if (clazz.isEnum()) {
-            return new EnumType(((Class<Enum<?>>) clazz).getEnumConstants());
-        }
-        
-        if (Collection.class.isAssignableFrom(clazz)) {
-            return this.generateTreeForCollection(typeInformation);
-        }
-        
-        if (Map.class.isAssignableFrom(clazz)) {
-            return this.generateTreeForMap(typeInformation);
-        }
-        
-        return this.generateTreeForComplexClass(clazz, typeInformation);
     }
 }

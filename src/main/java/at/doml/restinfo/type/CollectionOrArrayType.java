@@ -11,8 +11,8 @@ abstract class CollectionOrArrayType implements VisitableType {
     }
     
     @Override
-    public final void visit(TypeVisitor visitor) {
-        TypeUtils.conditionalVisit(
+    public final void accept(TypeVisitor visitor) {
+        TypeUtils.conditionalVisitForType(
                 visitor, this.elementType,
                 this::visitBefore,
                 this::shouldVisitElementType,

@@ -28,7 +28,7 @@ public enum SimpleType implements VisitableType {
     BOXED_VOID;
     
     @Override
-    public void visit(TypeVisitor visitor) {
+    public void accept(TypeVisitor visitor) {
         visitor.visitSimple(this);
     }
 }

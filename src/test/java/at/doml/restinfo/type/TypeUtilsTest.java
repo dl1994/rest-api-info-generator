@@ -112,7 +112,7 @@ public final class TypeUtilsTest extends AbstractTypeVisitorMethodCallOrderTest 
         CallOrderInfo typeCallOrder = this.defineRequiredCallOrderWithValue(
                 mockType,
                 this.mockVisitor,
-                VisitableType::visit
+                VisitableType::accept
         );
         CallOrderInfo typeVisitorCallOrder2 = this.defineRequiredCallOrder(
                 this.mockVisitor,
@@ -121,7 +121,7 @@ public final class TypeUtilsTest extends AbstractTypeVisitorMethodCallOrderTest 
         
         this.initializeOrderObject(typeVisitorCallOrder1, typeCallOrder, typeVisitorCallOrder2);
         
-        TypeUtils.conditionalVisit(
+        TypeUtils.conditionalVisitForType(
                 this.mockVisitor,
                 mockType,
                 TypeVisitor::visitBeforeAllComplexFields,

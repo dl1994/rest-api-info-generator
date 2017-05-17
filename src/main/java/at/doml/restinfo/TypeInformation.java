@@ -1,24 +1,34 @@
 package at.doml.restinfo;
 
+import at.doml.restinfo.util.Util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Pattern;
+import static at.doml.restinfo.util.Util.ARRAY_DIMENSION_NON_NEGATIVE;
+import static at.doml.restinfo.util.Util.TYPE_NOT_NULL;
+import static at.doml.restinfo.util.Util.TYPE_PARAMETERS_NOT_NULL;
+import static at.doml.restinfo.util.Util.TYPE_PARAMETER_MAPPINGS_NOT_NULL;
 
 public final class TypeInformation {
+    
+    private static final Pattern ARRAY_REMOVAL_PATTERN = Pattern.compile("(\\[])+$");
+    private static final Pattern OPENING_DIAMOND_SPLIT_PATTERN = Pattern.compile("<", Pattern.LITERAL);
+    private static final Pattern CLOSING_DIAMOND_REMOVAL_PATTERN = Pattern.compile(">(\\[])*$");
     
     private final int arrayDimension;
     private final String type;
     private final TypeInformation[] typeParameters;
     
-    private static final Pattern ARRAY_REMOVAL_PATTERN = Pattern.compile("(\\[])*$");
-    private static final Pattern CLOSING_DIAMOND_REMOVAL_PATTERN = Pattern.compile(">(\\[])*$");
-    
     public TypeInformation(String type, Map<String, String> typeParameterMappings) {
-        String typeToHandle = extractTypeFromMap(type.trim(), typeParameterMappings);
-        String[] split = typeToHandle.split("<", 2);
+        String typeToHandle = extractTypeFromMap(
+                Objects.requireNonNull(type, TYPE_NOT_NULL).trim(),
+                Objects.requireNonNull(typeParameterMappings, TYPE_PARAMETER_MAPPINGS_NOT_NULL)
+        );
+        String[] split = OPENING_DIAMOND_SPLIT_PATTERN.split(typeToHandle, 2);
         
         this.arrayDimension = findArrayDimension(typeToHandle);
         this.type = this.arrayDimension > 0
@@ -37,9 +47,9 @@ public final class TypeInformation {
     }
     
     public TypeInformation(String type, TypeInformation[] typeParameters, int arrayDimension) {
-        this.arrayDimension = arrayDimension;
-        this.type = type;
-        this.typeParameters = typeParameters.clone();
+        this.type = Objects.requireNonNull(type, TYPE_NOT_NULL);
+        this.typeParameters = Objects.requireNonNull(typeParameters, TYPE_PARAMETERS_NOT_NULL).clone();
+        this.arrayDimension = Util.requireNonNegative(arrayDimension, ARRAY_DIMENSION_NON_NEGATIVE);
     }
     
     private static String extractTypeFromMap(String key, Map<String, String> typeParameterMappings) {
@@ -122,7 +132,7 @@ public final class TypeInformation {
         StringBuilder builder = new StringBuilder("<");
         
         for (TypeInformation typeParameter : this.typeParameters) {
-            builder.append(typeParameter.toString())
+            builder.append(typeParameter)
                     .append(", ");
         }
         
