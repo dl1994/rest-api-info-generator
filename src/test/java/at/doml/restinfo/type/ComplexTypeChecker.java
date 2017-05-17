@@ -6,14 +6,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 final class ComplexTypeChecker extends TypeTreeChecker<ComplexType> {
-    
+
     private final Map<String, TypeTreeChecker> fieldCheckers;
-    
+
     ComplexTypeChecker(ComplexType expectedType, Map<String, TypeTreeChecker> fieldCheckers) {
         super(expectedType);
         this.fieldCheckers = Collections.unmodifiableMap(fieldCheckers);
     }
-    
+
     @Override
     void additionalAssertions(ComplexType expectedType, ComplexType actualType) {
         assertEquals("actual type does not have expected number of fields",

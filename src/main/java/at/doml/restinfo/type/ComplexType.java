@@ -5,13 +5,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 final class ComplexType implements VisitableType {
-    
+
     final Map<String, VisitableType> fields = new HashMap<>();
-    
+
     void addField(String fieldName, VisitableType fieldType) {
         this.fields.put(fieldName, fieldType);
     }
-    
+
     @Override
     public void accept(TypeVisitor visitor) {
         TypeUtils.conditionalVisit(
@@ -22,7 +22,7 @@ final class ComplexType implements VisitableType {
                 TypeVisitor::visitAfterAllComplexFields
         );
     }
-    
+
     private void visitFields(TypeVisitor visitor) {
         this.fields.forEach((fieldName, fieldType) ->
                 TypeUtils.conditionalVisitForType(

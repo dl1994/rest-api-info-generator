@@ -3,13 +3,13 @@ package at.doml.restinfo.type;
 import at.doml.restinfo.TypeVisitor;
 
 abstract class CollectionOrArrayType implements VisitableType {
-    
+
     final VisitableType elementType;
-    
+
     CollectionOrArrayType(VisitableType elementType) {
         this.elementType = elementType;
     }
-    
+
     @Override
     public final void accept(TypeVisitor visitor) {
         TypeUtils.conditionalVisitForType(
@@ -19,10 +19,10 @@ abstract class CollectionOrArrayType implements VisitableType {
                 this::visitAfter
         );
     }
-    
+
     abstract void visitBefore(TypeVisitor visitor);
-    
+
     abstract boolean shouldVisitElementType(TypeVisitor visitor);
-    
+
     abstract void visitAfter(TypeVisitor visitor);
 }

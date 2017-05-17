@@ -6,7 +6,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
 public final class TypeUtilsTest extends AbstractTypeVisitorMethodCallOrderTest {
-    
+
     //
     // TESTS
     //
@@ -17,9 +17,9 @@ public final class TypeUtilsTest extends AbstractTypeVisitorMethodCallOrderTest 
                 TypeVisitor::visitBeforeAllComplexFields,
                 TypeVisitor::visitAfterAllComplexFields
         );
-        
+
         this.initializeOrderObject(callOrderInfo);
-        
+
         TypeUtils.conditionalVisit(
                 this.mockVisitor,
                 TypeVisitor::visitBeforeAllComplexFields,
@@ -27,10 +27,10 @@ public final class TypeUtilsTest extends AbstractTypeVisitorMethodCallOrderTest 
                 ignored -> {},
                 TypeVisitor::visitAfterAllComplexFields
         );
-        
+
         this.assertMethodCallOrder(callOrderInfo);
     }
-    
+
     @Test
     public void conditionalVisitShouldCallOnConditionMethodOnTrueCondition() {
         CallOrderInfo callOrderInfo = this.defineRequiredCallOrder(
@@ -39,9 +39,9 @@ public final class TypeUtilsTest extends AbstractTypeVisitorMethodCallOrderTest 
                 TypeVisitor::visitBeforeArrayElementType,
                 TypeVisitor::visitAfterAllComplexFields
         );
-        
+
         this.initializeOrderObject(callOrderInfo);
-        
+
         TypeUtils.conditionalVisit(
                 this.mockVisitor,
                 TypeVisitor::visitBeforeAllComplexFields,
@@ -49,19 +49,19 @@ public final class TypeUtilsTest extends AbstractTypeVisitorMethodCallOrderTest 
                 TypeVisitor::visitBeforeArrayElementType,
                 TypeVisitor::visitAfterAllComplexFields
         );
-        
+
         this.assertMethodCallOrder(callOrderInfo);
     }
-    
+
     @Test
     public void conditionalVisitShouldCallMethodToCheckCondition() {
         CallOrderInfo callOrderInfo = this.defineRequiredCallOrder(
                 this.mockVisitor,
                 TypeVisitor::visitBeforeAllComplexFields
         );
-        
+
         this.initializeOrderObject(callOrderInfo);
-        
+
         TypeUtils.conditionalVisit(
                 this.mockVisitor,
                 ignored -> {},
@@ -72,10 +72,10 @@ public final class TypeUtilsTest extends AbstractTypeVisitorMethodCallOrderTest 
                 ignored -> {},
                 ignored -> {}
         );
-        
+
         this.assertMethodCallOrder(callOrderInfo);
     }
-    
+
     @Test
     public void conditionalVisitOnConditionMethodShouldNotBeCalledIfConditionIsFalse() {
         CallOrderInfo callOrderInfo = this.defineRequiredCallOrder(
@@ -84,9 +84,9 @@ public final class TypeUtilsTest extends AbstractTypeVisitorMethodCallOrderTest 
                 TypeVisitor::visitBeforeArrayElementType,
                 TypeVisitor::visitAfterAllComplexFields
         );
-        
+
         this.initializeOrderObject(callOrderInfo);
-        
+
         TypeUtils.conditionalVisit(
                 this.mockVisitor,
                 TypeVisitor::visitBeforeAllComplexFields,
@@ -97,10 +97,10 @@ public final class TypeUtilsTest extends AbstractTypeVisitorMethodCallOrderTest 
                 ignored -> fail("this was not supposed to be called"),
                 TypeVisitor::visitAfterAllComplexFields
         );
-        
+
         this.assertMethodCallOrder(callOrderInfo);
     }
-    
+
     @Test
     public void conditionalVisitWithTypeShouldCallVisitMethodOnGivenType() {
         CallOrderInfo typeVisitorCallOrder1 = this.defineRequiredCallOrder(
@@ -118,9 +118,9 @@ public final class TypeUtilsTest extends AbstractTypeVisitorMethodCallOrderTest 
                 this.mockVisitor,
                 TypeVisitor::visitAfterAllComplexFields
         );
-        
+
         this.initializeOrderObject(typeVisitorCallOrder1, typeCallOrder, typeVisitorCallOrder2);
-        
+
         TypeUtils.conditionalVisitForType(
                 this.mockVisitor,
                 mockType,
@@ -131,7 +131,7 @@ public final class TypeUtilsTest extends AbstractTypeVisitorMethodCallOrderTest 
                 },
                 TypeVisitor::visitAfterAllComplexFields
         );
-        
+
         this.assertMethodCallOrder(typeVisitorCallOrder1, typeCallOrder, typeVisitorCallOrder2);
     }
 }

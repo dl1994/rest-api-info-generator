@@ -3,7 +3,7 @@ package at.doml.restinfo.type;
 import at.doml.restinfo.TypeVisitor;
 
 public enum SimpleType implements VisitableType {
-    
+
     BYTE,
     SHORT,
     INT,
@@ -26,7 +26,7 @@ public enum SimpleType implements VisitableType {
     BOXED_CHAR,
     BOXED_BOOLEAN,
     BOXED_VOID;
-    
+
     @Override
     public void accept(TypeVisitor visitor) {
         visitor.visitSimple(this);

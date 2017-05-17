@@ -12,9 +12,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 public final class TypeInformationTest {
-    
+
     private final Map<Class<?>, String> typesToTest = new HashMap<>();
-    
+
     //
     // TESTS
     //
@@ -29,14 +29,14 @@ public final class TypeInformationTest {
         this.typesToTest.put(char.class, "char");
         this.typesToTest.put(boolean.class, "boolean");
         this.typesToTest.put(void.class, "void");
-        
+
         this.testTypes((expectedTypeString, ti) -> {
             assertType(expectedTypeString, ti);
             assertThatTypeIsNotFlaggedAsAnArray(ti);
             assertThatThereAreNoTypeParameters(ti);
         });
     }
-    
+
     @Test
     public void referenceTypesWithNoTypeParametersShouldNotHaveAnyTypeParameterAssociations() {
         this.typesToTest.put(Byte.class, "java.lang.Byte");
@@ -50,14 +50,14 @@ public final class TypeInformationTest {
         this.typesToTest.put(Void.class, "java.lang.Void");
         this.typesToTest.put(String.class, "java.lang.String");
         this.typesToTest.put(Object.class, "java.lang.Object");
-        
+
         this.testTypes((expectedTypeString, ti) -> {
             assertType(expectedTypeString, ti);
             assertThatTypeIsNotFlaggedAsAnArray(ti);
             assertThatThereAreNoTypeParameters(ti);
         });
     }
-    
+
     @Test
     public void primitiveArraysShouldHaveSameTypeAsPrimitiveType() {
         this.typesToTest.put(byte[].class, "byte");
@@ -68,14 +68,14 @@ public final class TypeInformationTest {
         this.typesToTest.put(double[].class, "double");
         this.typesToTest.put(char[].class, "char");
         this.typesToTest.put(boolean[].class, "boolean");
-        
+
         this.testTypes((expectedTypeString, ti) -> {
             assertType(expectedTypeString, ti);
             assertThatTypeIsArrayWithDimension(1, ti);
             assertThatThereAreNoTypeParameters(ti);
         });
     }
-    
+
     @Test
     public void referenceArraysShouldHaveSameTypeAsReferenceType() {
         this.typesToTest.put(Byte[].class, "java.lang.Byte");
@@ -89,14 +89,14 @@ public final class TypeInformationTest {
         this.typesToTest.put(Void[].class, "java.lang.Void");
         this.typesToTest.put(String[].class, "java.lang.String");
         this.typesToTest.put(Object[].class, "java.lang.Object");
-        
+
         this.testTypes((expectedTypeString, ti) -> {
             assertType(expectedTypeString, ti);
             assertThatTypeIsArrayWithDimension(1, ti);
             assertThatThereAreNoTypeParameters(ti);
         });
     }
-    
+
     @Test
     public void multiDimensionalArraysShouldHaveCorrectDimensionInTypeInformation() {
         assertThatTypeIsArrayWithDimension(1, typeInformationFor(int[].class));
@@ -104,27 +104,27 @@ public final class TypeInformationTest {
         assertThatTypeIsArrayWithDimension(3, typeInformationFor(int[][][].class));
         assertThatTypeIsArrayWithDimension(4, typeInformationFor(int[][][][].class));
     }
-    
+
     @Test
     public void multiDimensionalArraysShoulHaveSameRootType() {
         this.typesToTest.put(int[].class, "int");
         this.typesToTest.put(int[][].class, "int");
         this.typesToTest.put(int[][][].class, "int");
         this.typesToTest.put(int[][][][].class, "int");
-        
+
         this.testTypes((expectedTypeString, ti) -> {
             assertType(expectedTypeString, ti);
             assertThatThereAreNoTypeParameters(ti);
         });
     }
-    
+
     @Test
     public void typeWithSingleTypeParameterShouldHaveCorrectHierarchy() {
         TypeInformation typeInformation = typeInformationFromTestObject(new Object() {
             @SuppressWarnings("unused")
             public List<String> test;
         });
-        
+
         assertTypeParameterHierarchy(
                 typeInformationFor(
                         "java.util.List",
@@ -133,14 +133,14 @@ public final class TypeInformationTest {
                 typeInformation
         );
     }
-    
+
     @Test
     public void typeWithSingleNestedTypeParameterShouldHaveCorrectHierarchy() {
         TypeInformation typeInformation = typeInformationFromTestObject(new Object() {
             @SuppressWarnings("unused")
             public List<Set<Collection<String>>> test;
         });
-        
+
         assertTypeParameterHierarchy(
                 typeInformationFor(
                         "java.util.List",
@@ -155,14 +155,14 @@ public final class TypeInformationTest {
                 typeInformation
         );
     }
-    
+
     @Test
     public void typeWithMultipleTypeParametersShouldHaveCorrectHierarchy() {
         TypeInformation typeInformation = typeInformationFromTestObject(new Object() {
             @SuppressWarnings("unused")
             public Map<String, Integer> test;
         });
-        
+
         assertTypeParameterHierarchy(
                 typeInformationFor(
                         "java.util.Map",
@@ -172,14 +172,14 @@ public final class TypeInformationTest {
                 typeInformation
         );
     }
-    
+
     @Test
     public void typeWithMultipleNestedTypeParametersShouldHaveCorrectHierarchy() {
         TypeInformation typeInformation = typeInformationFromTestObject(new Object() {
             @SuppressWarnings("unused")
             public Map<Long, Map<String, Map<Map<Character, Short>, List<Boolean>>>> test;
         });
-        
+
         assertTypeParameterHierarchy(
                 typeInformationFor(
                         "java.util.Map",
@@ -204,14 +204,14 @@ public final class TypeInformationTest {
                 typeInformation
         );
     }
-    
+
     @Test
     public void arrayTypesWithSingleTypeParameterShouldHaveCorrectHierarchy() {
         TypeInformation typeInformation = typeInformationFromTestObject(new Object() {
             @SuppressWarnings("unused")
             public List<String>[] test;
         });
-        
+
         assertTypeParameterHierarchy(
                 typeInformationFor(
                         "java.util.List", 1,
@@ -219,12 +219,12 @@ public final class TypeInformationTest {
                 ),
                 typeInformation
         );
-        
+
         typeInformation = typeInformationFromTestObject(new Object() {
             @SuppressWarnings("unused")
             public Set<Integer>[][][] test;
         });
-        
+
         assertTypeParameterHierarchy(
                 typeInformationFor(
                         "java.util.Set", 3,
@@ -233,14 +233,14 @@ public final class TypeInformationTest {
                 typeInformation
         );
     }
-    
+
     @Test
     public void typesWithSingleArrayTypeParameterShouldHaveCorrectHierarchy() {
         TypeInformation typeInformation = typeInformationFromTestObject(new Object() {
             @SuppressWarnings("unused")
             public List<String[]> test;
         });
-        
+
         assertTypeParameterHierarchy(
                 typeInformationFor(
                         "java.util.List",
@@ -248,12 +248,12 @@ public final class TypeInformationTest {
                 ),
                 typeInformation
         );
-        
+
         typeInformation = typeInformationFromTestObject(new Object() {
             @SuppressWarnings("unused")
             public Set<Integer[][][]> test;
         });
-        
+
         assertTypeParameterHierarchy(
                 typeInformationFor(
                         "java.util.Set",
@@ -262,14 +262,14 @@ public final class TypeInformationTest {
                 typeInformation
         );
     }
-    
+
     @Test
     public void arrayTypesWithMultipleNestedArrayTypeParametersShouldHaveCorrectHierarchy() {
         TypeInformation typeInformation = typeInformationFromTestObject(new Object() {
             @SuppressWarnings("unused")
             public Map<Long[], Map<Map<Character[], Short>[][][], boolean[][]>>[][][][][] test;
         });
-        
+
         assertTypeParameterHierarchy(
                 typeInformationFor(
                         "java.util.Map", 5,
@@ -287,7 +287,7 @@ public final class TypeInformationTest {
                 typeInformation
         );
     }
-    
+
     @Test
     public void typeInformationShouldHaveCorrectToStringImplementation() throws NoSuchFieldException {
         Object object = new Object() {
@@ -296,26 +296,26 @@ public final class TypeInformationTest {
         };
         TypeInformation typeInformation = typeInformationFromTestObject(object);
         String expectedString = object.getClass().getField("test").getGenericType().getTypeName();
-        
+
         assertEquals("TypeInformation has incorrect toString method", expectedString, typeInformation.toString());
     }
-    
+
     //
     // HELPER METHODS
     //
     private static TypeInformation typeInformationFor(Class<?> clazz) {
         return new TypeInformation(clazz.getTypeName());
     }
-    
+
     private static TypeInformation typeInformationFor(String type, TypeInformation... typeParameters) {
         return typeInformationFor(type, 0, typeParameters);
     }
-    
+
     private static TypeInformation typeInformationFor(String type, int arrayDimension,
                                                       TypeInformation... typeParameters) {
         return new TypeInformation(type, typeParameters, arrayDimension);
     }
-    
+
     private static TypeInformation typeInformationFromTestObject(Object object) {
         try {
             return new TypeInformation(
@@ -329,44 +329,44 @@ public final class TypeInformationTest {
             throw new RuntimeException(e); // to make compiler happy
         }
     }
-    
+
     private void testTypes(BiConsumer<String, TypeInformation> assertions) {
         this.typesToTest.forEach((clazz, expectedTypeString) -> assertions.accept(
                 expectedTypeString, typeInformationFor(clazz)
         ));
     }
-    
+
     //
     // ASSERTIONS
     //
     private static void assertType(String expectedTypeString, TypeInformation ti) {
         assertEquals("type is incorrect", expectedTypeString, ti.getType());
     }
-    
+
     private static void assertTypeParameterHierarchy(TypeInformation expectedHierarchy,
                                                      TypeInformation actualHierarchy) {
         TypeInformation[] actualTypeParameters = actualHierarchy.getTypeParameters();
         TypeInformation[] expectedTypeParameters = expectedHierarchy.getTypeParameters();
-        
+
         assertType(expectedHierarchy.getType(), actualHierarchy);
         assertEquals("invalid number of type paramaters for " + actualHierarchy.getType(),
                 expectedTypeParameters.length, actualTypeParameters.length);
         assertThatTypeIsArrayWithDimension(expectedHierarchy.getArrayDimension(), actualHierarchy);
-        
+
         for (int i = 0; i < expectedTypeParameters.length; i++) {
             assertTypeParameterHierarchy(expectedTypeParameters[i], actualTypeParameters[i]);
         }
     }
-    
+
     private static void assertThatTypeIsArrayWithDimension(int expectedDimension, TypeInformation ti) {
         assertEquals(ti.getType() + " should be an array with correct dimension",
                 expectedDimension, ti.getArrayDimension());
     }
-    
+
     private static void assertThatTypeIsNotFlaggedAsAnArray(TypeInformation ti) {
         assertFalse(ti.getType() + " is not expected to be an array", ti.isArray());
     }
-    
+
     private static void assertThatThereAreNoTypeParameters(TypeInformation ti) {
         assertEquals("no type parameters are expected for type " + ti.getType(), 0, ti.getTypeParameters().length);
     }

@@ -16,9 +16,9 @@ import java.util.function.Supplier;
 import static org.junit.Assert.fail;
 
 public final class TypeTreeGeneratorTest {
-    
+
     private TypeTreeGenerator generator;
-    
+
     //
     // TESTS
     //
@@ -27,13 +27,13 @@ public final class TypeTreeGeneratorTest {
         this.initGenerator();
         this.treeFor(int[].class).assertStructure(array(simple(SimpleType.INT)));
     }
-    
+
     @Test
     public void arrayTypeNestingShouldGenerateCorrectTypeTree() {
         this.initGenerator();
         this.treeFor(int[][][].class).assertStructure(array(array(array(simple(SimpleType.INT)))));
     }
-    
+
     @Test
     public void collectionTypeShouldHaveCorrectElementTypeInTypeTree() {
         this.initGenerator();
@@ -42,7 +42,7 @@ public final class TypeTreeGeneratorTest {
             public List<String> test;
         }).assertStructure(collection(simple(SimpleType.STRING)));
     }
-    
+
     @Test
     public void collectionTypeNestingShouldGenerateCorrectTypeTree() {
         this.initGenerator();
@@ -60,7 +60,7 @@ public final class TypeTreeGeneratorTest {
                 )
         );
     }
-    
+
     @Test
     public void arrayAndCollectionTypeNestingShouldGenerateCorrectTypeTree() {
         this.initGenerator();
@@ -86,7 +86,7 @@ public final class TypeTreeGeneratorTest {
                 )
         );
     }
-    
+
     @Test
     public void complexTypeShouldHaveCorrectFieldTypesAndNamesInTypeTree() {
         this.initGenerator();
@@ -105,34 +105,34 @@ public final class TypeTreeGeneratorTest {
                 )
         );
     }
-    
+
     private static final Object WITH_GETTERS_AND_SETTERS = new Object() {
         @SuppressWarnings("unused")
         public boolean shared;
-        
+
         @SuppressWarnings("unused")
         public int getField1() {
             return 0;
         }
-        
+
         @SuppressWarnings("unused")
         public String getField2() {
             return "";
         }
-        
+
         @SuppressWarnings("unused")
         public byte getWrongGetterSignature(byte b) { return b; }
-        
+
         @SuppressWarnings("unused")
         public void setField3(Object o) {}
-        
+
         @SuppressWarnings("unused")
         public void setField4(Long l) {}
-        
+
         @SuppressWarnings("unused")
         public Short setWrongSetterSignature(Short s) { return s; }
     };
-    
+
     @Test
     public void complexTypeShouldHaveCorrectFieldTypesAndNamesInTypeTreeWhenUsingGetters() {
         this.initGenerator(TypeTreeGenerator.MethodFieldExtraction.EXTRACT_GETTERS);
@@ -144,7 +144,7 @@ public final class TypeTreeGeneratorTest {
                 )
         );
     }
-    
+
     @Test
     public void complexTypeShouldHaveCorrectFieldTypesAndNamesInTypeTreeWhenUsingSetters() {
         this.initGenerator(TypeTreeGenerator.MethodFieldExtraction.EXTRACT_SETTERS);
@@ -156,7 +156,7 @@ public final class TypeTreeGeneratorTest {
                 )
         );
     }
-    
+
     @Test
     public void complexTypeShouldHaveCorrectFieldTypesAndNamesInTypeTreeWhenNotUsingGettersAndSetters() {
         this.initGenerator(TypeTreeGenerator.MethodFieldExtraction.NONE);
@@ -166,7 +166,7 @@ public final class TypeTreeGeneratorTest {
                 )
         );
     }
-    
+
     @Test
     public void complexTypeNestingShouldGenerateCorrectTypeTree() {
         this.initGenerator();
@@ -176,7 +176,7 @@ public final class TypeTreeGeneratorTest {
             @SuppressWarnings("unused")
             public boolean nestedField2;
         }
-        
+
         this.treeFor(new Object() {
             @SuppressWarnings("unused")
             public TestType field1;
@@ -192,7 +192,7 @@ public final class TypeTreeGeneratorTest {
                 )
         );
     }
-    
+
     @Test
     public void complexTypeWithGenericTypeParametersShouldGenerateCorrectTypeTreeForFirstOrderGenerics() {
         this.initGenerator();
@@ -202,7 +202,7 @@ public final class TypeTreeGeneratorTest {
             @SuppressWarnings("unused")
             public S genericField2;
         }
-        
+
         this.treeFor(new Object() {
             @SuppressWarnings("unused")
             public GenericTestType<Set<String>, Long[]> genericType;
@@ -215,7 +215,7 @@ public final class TypeTreeGeneratorTest {
                 )
         );
     }
-    
+
     @Test
     public void complexTypeWithGenericTypeParametersShouldGenerateCorrectTypeTreeForDeepOrderGenerics() {
         this.initGenerator();
@@ -225,7 +225,7 @@ public final class TypeTreeGeneratorTest {
             @SuppressWarnings("unused")
             public Map<S, List<F>> genericField2;
         }
-        
+
         this.treeFor(new Object() {
             @SuppressWarnings("unused")
             public GenericTestType<int[], long[]> genericType;
@@ -249,20 +249,20 @@ public final class TypeTreeGeneratorTest {
                 )
         );
     }
-    
+
     @Test
     public void customTypeShouldHaveCorrectTypeInformationInTypeTree() {
         final class CustomClass {}
         this.initGenerator(CustomClass.class);
         this.treeFor(CustomClass.class).assertStructure(custom(CustomClass.class.getTypeName()));
     }
-    
+
     @Test
     public void enumTypeShouldHaveCorrectConstantsInTypeTree() {
         this.initGenerator();
         this.treeFor(TestEnum.class).assertStructure(enumConstants(TestEnum.values()));
     }
-    
+
     @Test
     public void mapTypeShouldHaveCorrectKeyAndValueTypesInTypeTree() {
         this.initGenerator();
@@ -271,7 +271,7 @@ public final class TypeTreeGeneratorTest {
             public Map<String, Integer> test;
         }).assertStructure(map(simple(SimpleType.STRING), simple(SimpleType.BOXED_INT)));
     }
-    
+
     @Test
     public void mapTypeNestingShouldGenerateCorrectTypeTree() {
         this.initGenerator();
@@ -285,7 +285,7 @@ public final class TypeTreeGeneratorTest {
                 )
         );
     }
-    
+
     @Test
     public void simpleTypesShouldHaveCorrectVisitableTypeClassesInTypeTree() {
         this.initGenerator();
@@ -312,7 +312,7 @@ public final class TypeTreeGeneratorTest {
         this.treeFor(Void.class).assertStructure(simple(SimpleType.BOXED_VOID));
         this.treeFor(Object.class).assertStructure(simple(SimpleType.OBJECT));
     }
-    
+
     @Test(expected = UnknownTypeException.class)
     public void unknownTypeShouldThrowExceptionOnDefaultTypeTreeGeneratorConfiguration() {
         this.initGenerator();
@@ -323,7 +323,7 @@ public final class TypeTreeGeneratorTest {
             }
         });
     }
-    
+
     @Test
     public void unknownTypeShouldGenerateCorrectTypeTreeWhenUnknownHandlingIsEnabled() {
         this.initGenerator(TypeTreeGenerator.UnknownTypeHandling.USE_SPECIAL_TOKEN);
@@ -334,7 +334,7 @@ public final class TypeTreeGeneratorTest {
             }
         }).assertStructure(unknown());
     }
-    
+
     @Test
     public void unknownTypeShouldBeHandledAsCustomTypesWhenThatKindOfHandlingIsSpecified() {
         this.initGenerator(TypeTreeGenerator.UnknownTypeHandling.HANDLE_AS_CUSTOM);
@@ -345,22 +345,22 @@ public final class TypeTreeGeneratorTest {
             }
         }).assertStructure(custom("unknown"));
     }
-    
+
     //
     // PRIVATE CLASSES
     //
     private static final class TypeTreeStub {
         private final VisitableType tree;
-        
+
         private TypeTreeStub(VisitableType tree) {
             this.tree = tree;
         }
-        
+
         private void assertStructure(TypeTreeChecker expectedTree) {
             expectedTree.assertType(this.tree);
         }
     }
-    
+
     private enum TestEnum {
         @SuppressWarnings("unused")
         CONST_1,
@@ -369,33 +369,33 @@ public final class TypeTreeGeneratorTest {
         @SuppressWarnings("unused")
         CONST_3
     }
-    
+
     //
     // HELPER METHODS
     //
     private void initGenerator() {
         this.generator = new TypeTreeGenerator();
     }
-    
+
     private void initGenerator(TypeTreeGenerator.MethodFieldExtraction methodFieldExtraction) {
         this.generator = new TypeTreeGenerator(methodFieldExtraction);
     }
-    
+
     private void initGenerator(TypeTreeGenerator.UnknownTypeHandling unknownTypeHandling) {
         this.generator = new TypeTreeGenerator(unknownTypeHandling);
     }
-    
+
     private void initGenerator(Class<?>... customClasses) {
         this.generator = new TypeTreeGenerator();
         for (Class<?> customClass : customClasses) {
             this.generator.registerCustomType(customClass);
         }
     }
-    
+
     private TypeTreeStub treeFor(Type type) {
         return new TypeTreeStub(this.generator.generateTree(type));
     }
-    
+
     private TypeTreeStub treeFromTestObject(Object object) {
         try {
             return this.treeFor(
@@ -408,57 +408,57 @@ public final class TypeTreeGeneratorTest {
             throw new RuntimeException(e); // to make compiler happy
         }
     }
-    
+
     private static TypeTreeChecker simple(SimpleType expectedType) {
         return new SimpleTypeChecker(expectedType);
     }
-    
+
     @SafeVarargs
     private static TypeTreeChecker complex(Map.Entry<String, TypeTreeChecker>... fields) {
         Map<String, TypeTreeChecker> expectedFieldCheckers = new HashMap<>();
-        
+
         for (Map.Entry<String, TypeTreeChecker> field : fields) {
             expectedFieldCheckers.put(field.getKey(), field.getValue());
         }
-        
+
         return new ComplexTypeChecker(new ComplexType(), expectedFieldCheckers);
     }
-    
+
     private static TypeTreeChecker custom(String typeName) {
         return customOrUnknown(typeName, CustomType::new);
     }
-    
+
     private static TypeTreeChecker unknown() {
         return customOrUnknown("unknown", UnknownType::new);
     }
-    
+
     private static TypeTreeChecker customOrUnknown(String typeName,
                                                    Function<TypeInformation, CustomOrUnknownType> constructor) {
         return new CustomOrUnknownTypeChecker<>(constructor.apply(
                 new TypeInformation(typeName, new TypeInformation[0], 0)
         ));
     }
-    
+
     private static Map.Entry<String, TypeTreeChecker> field(String name, TypeTreeChecker checker) {
         return new AbstractMap.SimpleEntry<>(name, checker);
     }
-    
+
     private static TypeTreeChecker enumConstants(Enum[] expectedConstants) {
         return new EnumTypeChecker(new EnumType(expectedConstants));
     }
-    
+
     private static TypeTreeChecker array(TypeTreeChecker expectedTypeTreeChecker) {
         return collectionOrArray(expectedTypeTreeChecker, ArrayType::new);
     }
-    
+
     private static TypeTreeChecker collection(TypeTreeChecker expectedTypeTreeChecker) {
         return collectionOrArray(expectedTypeTreeChecker, CollectionType::new);
     }
-    
+
     private static TypeTreeChecker map(TypeTreeChecker keyChecker, TypeTreeChecker valueChecker) {
         return new MapTypeChecker(new MapType(), keyChecker, valueChecker);
     }
-    
+
     private static TypeTreeChecker collectionOrArray(TypeTreeChecker expectedTypeTreeChecker,
                                                      Supplier<CollectionOrArrayType> constructor) {
         return new CollectionOrArrayTypeChecker<>(constructor.get(), expectedTypeTreeChecker);
