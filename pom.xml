@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>at.dom-l</groupId>
     <artifactId>rest-api-info-generator</artifactId>
-    <packaging>jar</packaging>
+    <!--<packaging>jar</packaging>-->
     <version>1.0.0-SNAPSHOT</version>
     <name>REST API Info Generator</name>
     <url>https://github.com/domagojlatecki/rest-api-info-generator</url>
@@ -16,10 +16,6 @@
             <id>domagoj.latecki</id>
             <name>Domagoj Latečki</name>
             <email>domagoj.latecki@gmail.com</email>
-            <roles>
-                <role>developer</role>
-            </roles>
-            <timezone>+1</timezone>
         </developer>
     </developers>
 
@@ -53,16 +49,16 @@
                     <reuseForks>false</reuseForks>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.0.2</version>
-                <configuration>
-                    <archive>
-                        <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
-                    </archive>
-                </configuration>
-            </plugin>
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-jar-plugin</artifactId>-->
+                <!--<version>3.0.2</version>-->
+                <!--<configuration>-->
+                    <!--<archive>-->
+                        <!--<manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>-->
+                    <!--</archive>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
