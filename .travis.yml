@@ -10,8 +10,7 @@ addons:
     organization: "domagojlatecki-github"
     token: '$SONAR_TOKEN'
     branches:
-      only:
-        - master
+      - master
 script:
   - mvn clean test jacoco:report package sonar:sonar
 cache:
