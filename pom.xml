@@ -8,7 +8,7 @@
     <packaging>jar</packaging>
     <version>1.0.0-SNAPSHOT</version>
     <name>REST API Info Generator</name>
-    <url>https://github.com/dl1994/rest-api-info-generator</url>
+    <url>https://github.com/domagojlatecki/rest-api-info-generator</url>
     <description><!-- TODO: add description (also in README.md) --></description>
 
     <developers>
