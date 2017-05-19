@@ -5,3 +5,16 @@ jdk:
 branches:
   only:
     - master
+addons:
+  sonarqube:
+    organization: "domagojlatecki-github"
+    token: '$SONAR_TOKEN'
+    branches:
+      only:
+        - master
+script:
+  - mvn clean test jacoco:report package sonar:sonar
+cache:
+  directories:
+    - '$HOME/.m2/repository'
+    - '$HOME/.sonar/cache'
