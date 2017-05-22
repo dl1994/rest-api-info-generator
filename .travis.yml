@@ -11,6 +11,9 @@ addons:
     token: '$SONAR_TOKEN'
     branches:
       - master
+  apt:
+    packages:
+      - oracle-java8-installer
 script:
   - mvn clean test jacoco:report package sonar:sonar
 cache:
