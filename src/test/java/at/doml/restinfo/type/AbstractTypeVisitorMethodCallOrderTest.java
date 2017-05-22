@@ -1,13 +1,13 @@
 package at.doml.restinfo.type;
 
-import at.doml.restinfo.TypeVisitor;
 import org.mockito.InOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.function.Predicate;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -21,7 +21,7 @@ abstract class AbstractTypeVisitorMethodCallOrderTest {
     private InOrder inOrderMock;
     private InOrder conditionalOrderMock;
     private final Collection<Consumer<Object>> callOrder = new ArrayList<>();
-    private final Collection<Function<TypeVisitor, Boolean>> conditionalOrder = new ArrayList<>();
+    private final Collection<Predicate<TypeVisitor>> conditionalOrder = new ArrayList<>();
 
     //
     // STATIC CLASSES
@@ -63,11 +63,21 @@ abstract class AbstractTypeVisitorMethodCallOrderTest {
     }
 
     @SafeVarargs
-    @SuppressWarnings("unchecked")
-    final CallOrderInfo defineConditionalCallOrder(Function<TypeVisitor, Boolean>... conditionalCalls) {
-        for (Function<TypeVisitor, Boolean> conditionalCall : conditionalCalls) {
+    final CallOrderInfo defineConditionalCallOrder(Predicate<TypeVisitor>... conditionalCalls) {
+        for (Predicate<TypeVisitor> conditionalCall : conditionalCalls) {
             this.conditionalOrder.add(conditionalCall);
-            conditionalCall.apply(doReturn(false).when(this.mockVisitor));
+            conditionalCall.test(doReturn(false).when(this.mockVisitor));
+        }
+
+        return new CallOrderInfo(this.mockVisitor, conditionalCalls.length);
+    }
+
+    @SafeVarargs
+    final CallOrderInfo defineConditionalCallOrder(String value, BiPredicate<TypeVisitor, String>... conditionalCalls) {
+        for (BiPredicate<TypeVisitor, String> conditionalCall : conditionalCalls) {
+            Predicate<TypeVisitor> singleArgCaller = v -> conditionalCall.test(v, value);
+            this.conditionalOrder.add(singleArgCaller);
+            singleArgCaller.test(doReturn(false).when(this.mockVisitor));
         }
 
         return new CallOrderInfo(this.mockVisitor, conditionalCalls.length);
@@ -122,7 +132,7 @@ abstract class AbstractTypeVisitorMethodCallOrderTest {
         assertOrder(
                 this.conditionalOrder,
                 (conditionalCall, object) ->
-                        conditionalCall.apply(this.conditionalOrderMock.verify((TypeVisitor) object)),
+                        conditionalCall.test(this.conditionalOrderMock.verify((TypeVisitor) object)),
                 callOrderInfos
         );
     }

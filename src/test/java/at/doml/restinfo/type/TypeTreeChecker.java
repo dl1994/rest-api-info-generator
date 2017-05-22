@@ -5,7 +5,7 @@ import static org.junit.Assert.assertSame;
 
 abstract class TypeTreeChecker<T extends VisitableType> {
 
-    final T expectedType;
+    private final T expectedType;
 
     TypeTreeChecker(T expectedType) {
         this.expectedType = expectedType;

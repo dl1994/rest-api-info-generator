@@ -1,11 +1,10 @@
 package at.doml.restinfo.type;
 
 import at.doml.restinfo.TypeInformation;
-import at.doml.restinfo.TypeVisitor;
 import org.junit.Test;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.function.Predicate;
 import static org.mockito.Mockito.when;
 
 public final class TypeVisitorTest extends AbstractTypeVisitorMethodCallOrderTest {
@@ -55,17 +54,20 @@ public final class TypeVisitorTest extends AbstractTypeVisitorMethodCallOrderTes
                 this.mockVisitor,
                 TypeVisitor::visitAfterAllComplexFields
         );
-        CallOrderInfo conditionalInfo = this.defineConditionalCallOrder(
-                TypeVisitor::shouldVisitComplexFields,
+        CallOrderInfo conditionalInfo1 = this.defineConditionalCallOrder(
+                TypeVisitor::shouldVisitComplexFields
+        );
+        CallOrderInfo conditionalInfo2 = this.defineConditionalCallOrder(
+                fieldName,
                 TypeVisitor::shouldVisitComplexFieldType
         );
 
         when(this.mockVisitor.shouldVisitComplexFields()).thenReturn(true);
         this.initializeOrderObject(callOrderInfo1, callOrderInfo2, callOrderInfo3);
-        this.initializeConditionalOrderObject(conditionalInfo);
+        this.initializeConditionalOrderObject(conditionalInfo1, conditionalInfo2);
         this.type.accept(this.mockVisitor);
         this.assertMethodCallOrder(callOrderInfo1, callOrderInfo2, callOrderInfo3);
-        this.assertConditionalCallOrder(conditionalInfo);
+        this.assertConditionalCallOrder(conditionalInfo1, conditionalInfo2);
     }
 
     @Test
@@ -153,7 +155,7 @@ public final class TypeVisitorTest extends AbstractTypeVisitorMethodCallOrderTes
 
     private void testIfArrayOrCollectionTypeHaveCorrectCallOrder(Consumer<TypeVisitor> firstCall,
                                                                  Consumer<TypeVisitor> secondCall,
-                                                                 Function<TypeVisitor, Boolean> conditional) {
+                                                                 Predicate<TypeVisitor> conditional) {
         CallOrderInfo callOrderInfo = this.defineRequiredCallOrder(
                 this.mockVisitor,
                 firstCall,

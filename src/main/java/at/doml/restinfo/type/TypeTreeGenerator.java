@@ -15,15 +15,22 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.regex.Pattern;
-import static at.doml.restinfo.util.Util.METHOD_FIELD_EXTRACTION_NOT_NULL;
-import static at.doml.restinfo.util.Util.TYPE_NOT_NULL;
-import static at.doml.restinfo.util.Util.UNKNOWN_TYPE_HANDLING_NOT_NULL;
 
+// TODO document this class
+
+/**
+ * Instances of this class can generate type trees traversable by {@link TypeVisitor}.<br/>
+ * <br/>
+ */
 public final class TypeTreeGenerator {
 
     //
     // CONSTANTS
     //
+    private static final String NOT_NULL = " must not be null";
+    private static final String TYPE_NOT_NULL = "type" + NOT_NULL;
+    private static final String METHOD_FIELD_EXTRACTION_NOT_NULL = "methodFieldExtraction" + NOT_NULL;
+    private static final String UNKNOWN_TYPE_HANDLING_NOT_NULL = "unknownTypeHandling" + NOT_NULL;
     private static final MethodFieldExtraction DEFAULT_METHOD_FIELD_EXTRACTION = MethodFieldExtraction.EXTRACT_BOTH;
     private static final UnknownTypeHandling DEFAULT_UNKNOWN_TYPE_HANDLING = UnknownTypeHandling.THROW_EXCEPTION;
     private static final Map<String, SimpleType> SIMPLE_TYPE_MAPPINGS = new HashMap<>();
@@ -61,18 +68,48 @@ public final class TypeTreeGenerator {
     private final UnknownTypeHandling unknownTypeHandling;
     private final Set<String> customTypes = new HashSet<>();
 
+    /**
+     * Constructs a <code>TypeTreeGenerator</code> object with default settings. By default, both getters and setters
+     * will be used to extract fields from complex types. Also, unknown types will cause the generator to throw
+     * {@link UnknownTypeException}.
+     */
     public TypeTreeGenerator() {
         this(DEFAULT_METHOD_FIELD_EXTRACTION, DEFAULT_UNKNOWN_TYPE_HANDLING);
     }
 
+    /**
+     * Constructs a <code>TypeTreeGenerator</code> object with provided setting for field extraction and default
+     * unknown type handling. By default, unknown types will cause the generator to throw {@link UnknownTypeException}.
+     * For more info about available field extraction settings see {@link MethodFieldExtraction}.
+     *
+     * @param methodFieldExtraction field extraction setting to use in this object
+     * @throws NullPointerException if provided parameter is <code>null</code>
+     */
     public TypeTreeGenerator(MethodFieldExtraction methodFieldExtraction) {
         this(methodFieldExtraction, DEFAULT_UNKNOWN_TYPE_HANDLING);
     }
 
+    /**
+     * Constructs a <code>TypeTreeGenerator</code> object with provided setting for unknown type handling and default
+     * field extraction setting. By default, both getters and setters will be used to extract fields from complex types.
+     * For more info about available unknown type handling settings see {@link UnknownTypeHandling}.
+     *
+     * @param unknownTypeHandling unknown type handling setting to use in this object
+     * @throws NullPointerException if provided parameter is <code>null</code>
+     */
     public TypeTreeGenerator(UnknownTypeHandling unknownTypeHandling) {
         this(DEFAULT_METHOD_FIELD_EXTRACTION, unknownTypeHandling);
     }
 
+    /**
+     * Constructs a <code>TypeTreeGenerator</code> object with provided settings for field extraction and unknown type
+     * handling. For more info about available field extraction settings see {@link MethodFieldExtraction}, and for more
+     * info about available unknown type handling settings see {@link UnknownTypeHandling}.
+     *
+     * @param methodFieldExtraction field extraction setting to use in this object
+     * @param unknownTypeHandling   unknown type handling setting to use in this object
+     * @throws NullPointerException if any of provided parameters is <code>null</code>
+     */
     public TypeTreeGenerator(MethodFieldExtraction methodFieldExtraction, UnknownTypeHandling unknownTypeHandling) {
         this.methodFieldExtraction = Objects.requireNonNull(methodFieldExtraction, METHOD_FIELD_EXTRACTION_NOT_NULL);
         this.unknownTypeHandling = Objects.requireNonNull(unknownTypeHandling, UNKNOWN_TYPE_HANDLING_NOT_NULL);
@@ -110,7 +147,7 @@ public final class TypeTreeGenerator {
     private interface ClassFieldFetcher {
         boolean canFetchFrom(Method method);
 
-        TypeInformation fetchField(Method method, Map<String, String> typeParameterMappings);
+        TypeInformation fetchField(Method method, Map<String, String> typeNameMappings);
     }
 
     private static class GetterFieldFetcher implements ClassFieldFetcher {
@@ -133,8 +170,8 @@ public final class TypeTreeGenerator {
         }
 
         @Override
-        public TypeInformation fetchField(Method method, Map<String, String> typeParameterMappings) {
-            return new TypeInformation(method.getGenericReturnType().getTypeName(), typeParameterMappings);
+        public TypeInformation fetchField(Method method, Map<String, String> typeNameMappings) {
+            return new TypeInformation(method.getGenericReturnType(), typeNameMappings);
         }
     }
 
@@ -152,16 +189,49 @@ public final class TypeTreeGenerator {
         }
 
         @Override
-        public TypeInformation fetchField(Method method, Map<String, String> typeParameterMappings) {
-            return new TypeInformation(method.getGenericParameterTypes()[0].getTypeName(),
-                    typeParameterMappings);
+        public TypeInformation fetchField(Method method, Map<String, String> typeNameMappings) {
+            return new TypeInformation(method.getGenericParameterTypes()[0], typeNameMappings);
         }
     }
 
+    /**
+     * An enumeration which defines available settings for field extraction from methods in {@link TypeTreeGenerator}.
+     * <br/>
+     * Available settings are as follows:<ul>
+     * <li>{@link MethodFieldExtraction#NONE} - no methods will be used to extract class fields</li>
+     * <li>{@link MethodFieldExtraction#EXTRACT_GETTERS} - getters will be used to extract class fields</li>
+     * <li>{@link MethodFieldExtraction#EXTRACT_SETTERS} - setters will be used to extract class fields</li>
+     * <li>{@link MethodFieldExtraction#EXTRACT_BOTH} - getters and setters will be used to extract class fields</li>
+     * </ul>
+     *
+     * @author Domagoj Latečki
+     * @version 1.0.0
+     */
     public enum MethodFieldExtraction {
+        /**
+         * No field extraction from methods will be performed.
+         */
         NONE(),
+        /**
+         * Additional fields will be extracted using getter methods (non-<code>void</code>, no argument methods which
+         * start with 'get' or 'is'). Field name is generated by dropping 'get' or 'is' from beginning of the method
+         * name and lowercasing the following character. Field type is same as method return type.
+         */
         EXTRACT_GETTERS(GetterFieldFetcher.INSTANCE),
+        /**
+         * Additional fields will be extracted using setter methods (<code>void</code>, single argument methods which
+         * start with 'set'). Field name is generated by dropping 'set' from beginning of the method name and
+         * lowercasing the following character. Field type is same as argument type of the method.
+         */
         EXTRACT_SETTERS(SetterFieldFetcher.INSTANCE),
+        /**
+         * Additional fields will be extracted using both getters (non-<code>void</code>, no argument methods which
+         * start with 'get' or 'is') and setters (<code>void</code>, single argument methods which start with 'set').
+         * When extracting fields from getters, field names will be generated by dropping 'get' or 'is' from beginning
+         * of the method name and lowercasing the following character. Field type will be same as method return type. In
+         * case of setters, field names will be generated by dropping 'set' from beginning of the method name and
+         * lowercasing the following character. Field type will be same as argument type of the method.
+         */
         EXTRACT_BOTH(GetterFieldFetcher.INSTANCE, SetterFieldFetcher.INSTANCE);
 
         private final ClassFieldFetcher[] fetchers;
@@ -171,14 +241,39 @@ public final class TypeTreeGenerator {
         }
     }
 
+    /**
+     * An enumeration which defines available settings for unknown type handling in {@link TypeTreeGenerator}.<br/>
+     * Available settings are as follows:<ul>
+     * <li>{@link UnknownTypeHandling#THROW_EXCEPTION} - exception will be thrown when unknown type is encountered</li>
+     * <li>{@link UnknownTypeHandling#HANDLE_AS_CUSTOM} - unknown types will generate same tokens as custom types</li>
+     * <li>{@link UnknownTypeHandling#USE_SPECIAL_TOKEN} - special token will be used for unknown types</li>
+     * </ul>
+     *
+     * @author Domagoj Latečki
+     * @version 1.0.0
+     */
     public enum UnknownTypeHandling {
-        THROW_EXCEPTION((ignored, exception) -> { throw exception; }),
+        /**
+         * Throws {@link UnknownTypeException} when unknown type is encountered. The thrown exception will contain the
+         * name of the unknown type which can be fetched by calling {@link UnknownTypeException#getTypeName()}. The
+         * exception will also wrap the exception which caused it to be thrown (cause will always be an instance of
+         * {@link ClassNotFoundException}).
+         */
+        THROW_EXCEPTION((typeInformation, cause) -> {
+            throw new UnknownTypeException(typeInformation.getTypeName(), cause);
+        }),
+        /**
+         * Unknown types will be handled as custom types, so they will produce the same token type.
+         */
         HANDLE_AS_CUSTOM((typeInformation, ignored) -> new CustomType(typeInformation)),
+        /**
+         * Unknown types will produce distinct token types to differ them from other types in the type tree.
+         */
         USE_SPECIAL_TOKEN((typeInformation, ignored) -> new UnknownType(typeInformation));
 
-        private final BiFunction<TypeInformation, UnknownTypeException, VisitableType> handler;
+        private final BiFunction<TypeInformation, ClassNotFoundException, VisitableType> handler;
 
-        UnknownTypeHandling(BiFunction<TypeInformation, UnknownTypeException, VisitableType> handler) {
+        UnknownTypeHandling(BiFunction<TypeInformation, ClassNotFoundException, VisitableType> handler) {
             this.handler = handler;
         }
     }
@@ -186,16 +281,88 @@ public final class TypeTreeGenerator {
     //
     // INSTANCE METHODS
     //
+
+    /**
+     * Registers a type which will produce custom type tokens. Any type can be registered as a custom type, except for
+     * arrays and types defined in {@link SimpleType}. Custom types will always have priority over other type classes
+     * when generating type tree. For example, registering <code>java.util.ArrayList</code> as a custom type will cause
+     * the generator to generate custom type tokens for <code>ArrayList</code>s instead of collection tokens. When
+     * checking if some type is a registered as a custom type, full type name is used. This means that you cannot use
+     * sub-classing to register all custom types at once: each custom class must be registered separately.
+     *
+     * @param type custom type to register
+     * @throws NullPointerException if provided parameter is <code>null</code>
+     */
     public void registerCustomType(Type type) {
         this.customTypes.add(getTypeName(type));
     }
 
-    public void removeCustomType(Type type) {
+    /**
+     * Unregisters provided custom type. If provided type was not already registered, this method will effectively do
+     * nothing.
+     *
+     * @param type custom type to unregister
+     * @throws NullPointerException if provided parameter is <code>null</code>
+     */
+    public void unregisterCustomType(Type type) {
         this.customTypes.remove(getTypeName(type));
     }
 
+    /**
+     * Generates a type tree from provided root type. The type tree will be traversable using classes which implement
+     * {@link TypeVisitor} interface.<br/>
+     * <br/>
+     * The tree will consist of following nodes:<ul>
+     * <li>simple types - see {@link SimpleType}</li>
+     * <li>enum types - any Java <code>enum</code></li>
+     * <li>array types - types which represent any Java array. Multi-dimensional arrays will be represented as nested
+     * one-dimensional arrays</li>
+     * <li>collection types - any class which implements <code>java.util.Collection</code> interface</li>
+     * <li>map - any class which implements <code>java.util.Map</code> interface</li>
+     * <li>custom - any type registered as custom type before type tree generation. See
+     * {@link TypeTreeGenerator#registerCustomType(Type)}</li>
+     * <li>complex - any type which is composed of other types. All classes which are not registered as custom types and
+     * can be obtained by the class loader will be put into this category</li>
+     * </ul>
+     * Additionally, depending on the provided {@link UnknownTypeHandling} setting, unknown type tokens may be
+     * generated. Unknown types are all types not covered by the above definitions (i.e. types which cannot be loaded by
+     * the class loader and are not registered as custom types).<br/>
+     * <br/>
+     * An example of generated type tree is given for the following class:<br/>
+     * <br/>
+     * <code>class SomeClass {<br/>
+     * &nbsp;&nbsp;&nbsp;&nbsp;public int a;<br/>
+     * &nbsp;&nbsp;&nbsp;&nbsp;public String b;<br/>
+     * &nbsp;&nbsp;&nbsp;&nbsp;public List&lt;Integer[]&lt; c;<br/>
+     * &nbsp;&nbsp;&nbsp;&nbsp;public Map&lt;String, List&lt;Boolean[]&gt;&gt; d;<br/>
+     * }</code><br/>
+     * <br/>
+     * Generated tree:<br/>
+     * <br/>
+     * <code>ComplexType<br/>
+     * ├─ SimpleType.INT<br/>
+     * ├─ SimpleType.STRING<br/>
+     * ├─ CollectionType<br/>
+     * │&nbsp;&nbsp;└─ ArrayType<br/>
+     * │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ SimpleType.BOXED_INT<br/>
+     * └─ MapType<br/>
+     * &nbsp;&nbsp;├─ SimpleType.STRING<br/>
+     * &nbsp;&nbsp;└─ CollectionType<br/>
+     * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ ArrayType<br/>
+     * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ SimpleType.BOXED_BOOLEAN<br/>
+     * </code><br/>
+     * <br/>
+     * Note: this method can handle generic type parameters, provided that <code>type</code> contains sufficient type
+     * parameter information.
+     *
+     * @param type root type for which to generate the type tree.
+     * @return root node of the generated type tree.
+     * @throws NullPointerException if provided parameter is <code>null</code>
+     * @throws UnknownTypeException if unknown type is encountered and unknown type handling setting is set to
+     *                              {@link UnknownTypeHandling#THROW_EXCEPTION}
+     */
     public VisitableType generateTree(Type type) {
-        return this.generateTree(new TypeInformation(getTypeName(type)));
+        return this.generateTree(new TypeInformation(Objects.requireNonNull(type, TYPE_NOT_NULL)));
     }
 
     //
@@ -206,7 +373,7 @@ public final class TypeTreeGenerator {
             return this.generateTreeForArray(typeInformation);
         }
 
-        String type = typeInformation.getType();
+        String type = typeInformation.getTypeName();
         SimpleType simpleType = SIMPLE_TYPE_MAPPINGS.get(type);
 
         if (simpleType != null) {
@@ -220,7 +387,7 @@ public final class TypeTreeGenerator {
         try {
             return this.handleClass(Class.forName(type), typeInformation);
         } catch (ClassNotFoundException exception) {
-            return this.unknownTypeHandling.handler.apply(typeInformation, new UnknownTypeException(type, exception));
+            return this.unknownTypeHandling.handler.apply(typeInformation, exception);
         }
     }
 
@@ -244,7 +411,7 @@ public final class TypeTreeGenerator {
         return new ArrayType(
                 this.generateTree(
                         new TypeInformation(
-                                typeInformation.getType(), typeInformation.getTypeParameters(),
+                                typeInformation.getTypeName(), typeInformation.getTypeParameters(),
                                 typeInformation.getArrayDimension() - 1
                         )
                 )
@@ -268,39 +435,38 @@ public final class TypeTreeGenerator {
 
     private VisitableType generateTreeForComplexClass(Class<?> clazz, TypeInformation typeInformation) {
         ComplexType complexType = new ComplexType();
-        Map<String, String> typeParameterMappings = createTypeParameterMappings(clazz, typeInformation);
+        Map<String, String> typeNameMappings = createTypeNameMappings(clazz, typeInformation);
 
-        this.addFieldsToComplexType(clazz, typeParameterMappings, complexType);
-        this.addFieldsFromMethodsToComplexType(clazz, typeParameterMappings, complexType);
+        this.addFieldsToComplexType(clazz, typeNameMappings, complexType);
+        this.addFieldsFromMethodsToComplexType(clazz, typeNameMappings, complexType);
 
         return complexType;
     }
 
-    private static Map<String, String> createTypeParameterMappings(Class<?> clazz, TypeInformation typeInformation) {
-        Map<String, String> typeParameterMappings = new HashMap<>();
+    private static Map<String, String> createTypeNameMappings(Class<?> clazz, TypeInformation typeInformation) {
+        Map<String, String> typeNameMappings = new HashMap<>();
         TypeVariable<?>[] genericTypeParameters = clazz.getTypeParameters();
         TypeInformation[] actualTypeParameters = typeInformation.getTypeParameters();
 
         int limit = Math.min(genericTypeParameters.length, actualTypeParameters.length);
         for (int i = 0; i < limit; i++) {
-            typeParameterMappings.put(genericTypeParameters[i].toString(), actualTypeParameters[i].toString());
+            typeNameMappings.put(genericTypeParameters[i].toString(), actualTypeParameters[i].toString());
         }
 
-        return typeParameterMappings;
+        return typeNameMappings;
     }
 
-    private void addFieldsToComplexType(Class<?> clazz, Map<String, String> typeParameterMappings,
-                                        ComplexType complexType) {
+    private void addFieldsToComplexType(Class<?> clazz, Map<String, String> typeNameMappings, ComplexType complexType) {
         Field[] publicFields = clazz.getFields();
 
         for (Field publicField : publicFields) {
             complexType.addField(publicField.getName(), this.generateTree(
-                    new TypeInformation(publicField.getGenericType().getTypeName(), typeParameterMappings)
+                    new TypeInformation(publicField.getGenericType(), typeNameMappings)
             ));
         }
     }
 
-    private void addFieldsFromMethodsToComplexType(Class<?> clazz, Map<String, String> typeParameterMappings,
+    private void addFieldsFromMethodsToComplexType(Class<?> clazz, Map<String, String> typeNameMappings,
                                                    ComplexType complexType) {
         Method[] publicMethods = clazz.getMethods();
 
@@ -308,7 +474,7 @@ public final class TypeTreeGenerator {
             for (ClassFieldFetcher fetcher : this.methodFieldExtraction.fetchers) {
                 if (fetcher.canFetchFrom(publicMethod)) {
                     complexType.addField(getFieldName(publicMethod.getName()), this.generateTree(
-                            fetcher.fetchField(publicMethod, typeParameterMappings)
+                            fetcher.fetchField(publicMethod, typeNameMappings)
                     ));
                 }
             }

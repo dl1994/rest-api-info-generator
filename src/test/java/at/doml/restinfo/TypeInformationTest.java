@@ -106,7 +106,7 @@ public final class TypeInformationTest {
     }
 
     @Test
-    public void multiDimensionalArraysShoulHaveSameRootType() {
+    public void multiDimensionalArraysShouldHaveSameRootType() {
         this.typesToTest.put(int[].class, "int");
         this.typesToTest.put(int[][].class, "int");
         this.typesToTest.put(int[][][].class, "int");
@@ -304,7 +304,7 @@ public final class TypeInformationTest {
     // HELPER METHODS
     //
     private static TypeInformation typeInformationFor(Class<?> clazz) {
-        return new TypeInformation(clazz.getTypeName());
+        return new TypeInformation(clazz);
     }
 
     private static TypeInformation typeInformationFor(String type, TypeInformation... typeParameters) {
@@ -322,7 +322,6 @@ public final class TypeInformationTest {
                     object.getClass()
                             .getField("test")
                             .getGenericType()
-                            .getTypeName()
             );
         } catch (NoSuchFieldException e) {
             fail("provided object has no field named \"test\" from which to fetch type information");
@@ -340,7 +339,7 @@ public final class TypeInformationTest {
     // ASSERTIONS
     //
     private static void assertType(String expectedTypeString, TypeInformation ti) {
-        assertEquals("type is incorrect", expectedTypeString, ti.getType());
+        assertEquals("type is incorrect", expectedTypeString, ti.getTypeName());
     }
 
     private static void assertTypeParameterHierarchy(TypeInformation expectedHierarchy,
@@ -348,8 +347,8 @@ public final class TypeInformationTest {
         TypeInformation[] actualTypeParameters = actualHierarchy.getTypeParameters();
         TypeInformation[] expectedTypeParameters = expectedHierarchy.getTypeParameters();
 
-        assertType(expectedHierarchy.getType(), actualHierarchy);
-        assertEquals("invalid number of type paramaters for " + actualHierarchy.getType(),
+        assertType(expectedHierarchy.getTypeName(), actualHierarchy);
+        assertEquals("invalid number of type parameters for " + actualHierarchy.getTypeName(),
                 expectedTypeParameters.length, actualTypeParameters.length);
         assertThatTypeIsArrayWithDimension(expectedHierarchy.getArrayDimension(), actualHierarchy);
 
@@ -359,15 +358,15 @@ public final class TypeInformationTest {
     }
 
     private static void assertThatTypeIsArrayWithDimension(int expectedDimension, TypeInformation ti) {
-        assertEquals(ti.getType() + " should be an array with correct dimension",
+        assertEquals(ti.getTypeName() + " should be an array with correct dimension",
                 expectedDimension, ti.getArrayDimension());
     }
 
     private static void assertThatTypeIsNotFlaggedAsAnArray(TypeInformation ti) {
-        assertFalse(ti.getType() + " is not expected to be an array", ti.isArray());
+        assertFalse(ti.getTypeName() + " is not expected to be an array", ti.isArray());
     }
 
     private static void assertThatThereAreNoTypeParameters(TypeInformation ti) {
-        assertEquals("no type parameters are expected for type " + ti.getType(), 0, ti.getTypeParameters().length);
+        assertEquals("no type parameters are expected for type " + ti.getTypeName(), 0, ti.getTypeParameters().length);
     }
 }

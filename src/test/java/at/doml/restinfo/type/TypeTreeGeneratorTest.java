@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import static org.junit.Assert.fail;
 
 public final class TypeTreeGeneratorTest {
@@ -370,6 +369,16 @@ public final class TypeTreeGeneratorTest {
         CONST_3
     }
 
+    private static final class None implements VisitableType {
+
+        private static final VisitableType INSTANCE = new None();
+
+        @Override
+        public void accept(TypeVisitor typeVisitor) {
+            // Not visited
+        }
+    }
+
     //
     // HELPER METHODS
     //
@@ -456,11 +465,11 @@ public final class TypeTreeGeneratorTest {
     }
 
     private static TypeTreeChecker map(TypeTreeChecker keyChecker, TypeTreeChecker valueChecker) {
-        return new MapTypeChecker(new MapType(), keyChecker, valueChecker);
+        return new MapTypeChecker(new MapType(None.INSTANCE, None.INSTANCE), keyChecker, valueChecker);
     }
 
     private static TypeTreeChecker collectionOrArray(TypeTreeChecker expectedTypeTreeChecker,
-                                                     Supplier<CollectionOrArrayType> constructor) {
-        return new CollectionOrArrayTypeChecker<>(constructor.get(), expectedTypeTreeChecker);
+                                                     Function<VisitableType, CollectionOrArrayType> constructor) {
+        return new CollectionOrArrayTypeChecker<>(constructor.apply(None.INSTANCE), expectedTypeTreeChecker);
     }
 }

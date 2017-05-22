@@ -1,6 +1,5 @@
 package at.doml.restinfo.type;
 
-import at.doml.restinfo.TypeVisitor;
 import org.junit.Test;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;

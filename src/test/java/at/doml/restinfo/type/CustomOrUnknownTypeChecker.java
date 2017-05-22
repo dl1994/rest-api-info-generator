@@ -16,8 +16,8 @@ final class CustomOrUnknownTypeChecker<T extends CustomOrUnknownType> extends Ty
         TypeInformation actualTypeInformation = actualType.typeInformation;
 
         assertNotNull("custom type information must not be null", actualTypeInformation);
-        assertEquals("custom type name is incorrect", expectedTypeInformation.getType(),
-                actualTypeInformation.getType());
+        assertEquals("custom type name is incorrect", expectedTypeInformation.getTypeName(),
+                actualTypeInformation.getTypeName());
         assertEquals("custom array dimension is incorrect", expectedTypeInformation.getArrayDimension(),
                 actualTypeInformation.getArrayDimension());
         assertEquals("custom type has incorrect number of type parameters",
