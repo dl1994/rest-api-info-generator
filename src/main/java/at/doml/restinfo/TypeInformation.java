@@ -138,7 +138,8 @@ public final class TypeInformation {
     }
 
     private static Type typeFromString(String typeName) {
-        return new Type() {
+        return new Type() { // NOSONAR this cannot be a lambda expression because java.lang.reflect.Type is not a
+            // functional interface according to the Java Language Specification
 
             @Override
             public String getTypeName() {
