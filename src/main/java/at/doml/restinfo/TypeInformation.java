@@ -37,7 +37,7 @@ public final class TypeInformation {
     private static final Pattern ARRAY_REMOVAL_PATTERN = Pattern.compile("(\\[])+$");
     private static final Pattern OPENING_DIAMOND_SPLIT_PATTERN = Pattern.compile("<", Pattern.LITERAL);
     private static final Pattern CLOSING_DIAMOND_REMOVAL_PATTERN = Pattern.compile(">(\\[])*$");
-    private static final Predicate<String> TYPE_NAME_VALIDATOR = Pattern.compile(TYPE_REGEX).asPredicate().negate();
+    private static final Predicate<String> TYPE_NAME_VALIDATOR = Pattern.compile(TYPE_REGEX).asPredicate();
 
     //
     // CONSTRUCTORS AND MEMBER VARIABLES
@@ -115,26 +115,15 @@ public final class TypeInformation {
                 TYPE_NAME_VALIDATOR, TYPE_REGEX_MUST_BE_VALID
         );
         this.typeParameters = Objects.requireNonNull(typeParameters, TYPE_PARAMETERS_NOT_NULL).clone();
-        this.arrayDimension = requireNonNegative(arrayDimension, ARRAY_DIMENSION_NON_NEGATIVE);
+        this.arrayDimension = PackageUtils.requireNonNegative(arrayDimension, ARRAY_DIMENSION_NON_NEGATIVE);
     }
 
     //
     // HELPER METHODS
     //
-    private static int requireNonNegative(int value, String message) {
-        return testAndGet(value, v -> v < 0, message);
-    }
 
     private static String requireRegexConformity(String value, Predicate<String> checker, String message) {
-        return testAndGet(value, checker, message);
-    }
-
-    private static <T> T testAndGet(T value, Predicate<T> tester, String message) {
-        if (tester.test(value)) {
-            throw new IllegalArgumentException(message);
-        }
-
-        return value;
+        return PackageUtils.requireCondition(value, checker, message);
     }
 
     private static Type typeFromString(String typeName) {

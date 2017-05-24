@@ -4,16 +4,14 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * Internal class which contains helper methods for <code>VisitableType</code> and <code>TypeVisitor</code>.
+ * Internal class which contains helper methods for {@link at.doml.restinfo.type} package.
  *
  * @author Domagoj Latečki
  * @version 1.0.0
- * @see TypeVisitor
- * @see VisitableType
  */
-final class TypeUtils {
+final class PackageUtils {
 
-    private TypeUtils() {
+    private PackageUtils() {
         // No instances of this class are possible
     }
 

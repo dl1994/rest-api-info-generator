@@ -40,13 +40,13 @@ final class MapType implements VisitableType {
 
     @Override
     public void accept(TypeVisitor visitor) {
-        TypeUtils.conditionalVisitForType(
+        PackageUtils.conditionalVisitForType(
                 visitor, this.keyType,
                 TypeVisitor::visitBeforeMapKeyType,
                 TypeVisitor::shouldVisitMapKeyType,
                 TypeVisitor::visitAfterMapKeyType
         );
-        TypeUtils.conditionalVisitForType(
+        PackageUtils.conditionalVisitForType(
                 visitor, this.valueType,
                 TypeVisitor::visitBeforeMapValueType,
                 TypeVisitor::shouldVisitMapValueType,

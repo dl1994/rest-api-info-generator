@@ -40,7 +40,7 @@ final class ComplexType implements VisitableType {
 
     @Override
     public void accept(TypeVisitor visitor) {
-        TypeUtils.conditionalVisit(
+        PackageUtils.conditionalVisit(
                 visitor,
                 TypeVisitor::visitBeforeAllComplexFields,
                 TypeVisitor::shouldVisitComplexFields,
@@ -51,7 +51,7 @@ final class ComplexType implements VisitableType {
 
     private void visitFields(TypeVisitor visitor) {
         this.fields.forEach((fieldName, fieldType) ->
-                TypeUtils.conditionalVisitForType(
+                PackageUtils.conditionalVisitForType(
                         visitor, fieldType,
                         v -> v.visitBeforeComplexField(fieldName),
                         v -> v.shouldVisitComplexFieldType(fieldName),

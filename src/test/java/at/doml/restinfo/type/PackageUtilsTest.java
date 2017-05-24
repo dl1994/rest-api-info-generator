@@ -4,7 +4,7 @@ import org.junit.Test;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
-public final class TypeUtilsTest extends AbstractTypeVisitorMethodCallOrderTest {
+public final class PackageUtilsTest extends AbstractTypeVisitorMethodCallOrderTest {
 
     //
     // TESTS
@@ -19,7 +19,7 @@ public final class TypeUtilsTest extends AbstractTypeVisitorMethodCallOrderTest 
 
         this.initializeOrderObject(callOrderInfo);
 
-        TypeUtils.conditionalVisit(
+        PackageUtils.conditionalVisit(
                 this.mockVisitor,
                 TypeVisitor::visitBeforeAllComplexFields,
                 ignored -> false,
@@ -41,7 +41,7 @@ public final class TypeUtilsTest extends AbstractTypeVisitorMethodCallOrderTest 
 
         this.initializeOrderObject(callOrderInfo);
 
-        TypeUtils.conditionalVisit(
+        PackageUtils.conditionalVisit(
                 this.mockVisitor,
                 TypeVisitor::visitBeforeAllComplexFields,
                 ignored -> true,
@@ -61,7 +61,7 @@ public final class TypeUtilsTest extends AbstractTypeVisitorMethodCallOrderTest 
 
         this.initializeOrderObject(callOrderInfo);
 
-        TypeUtils.conditionalVisit(
+        PackageUtils.conditionalVisit(
                 this.mockVisitor,
                 ignored -> {},
                 visitor -> {
@@ -86,7 +86,7 @@ public final class TypeUtilsTest extends AbstractTypeVisitorMethodCallOrderTest 
 
         this.initializeOrderObject(callOrderInfo);
 
-        TypeUtils.conditionalVisit(
+        PackageUtils.conditionalVisit(
                 this.mockVisitor,
                 TypeVisitor::visitBeforeAllComplexFields,
                 visitor -> {
@@ -120,7 +120,7 @@ public final class TypeUtilsTest extends AbstractTypeVisitorMethodCallOrderTest 
 
         this.initializeOrderObject(typeVisitorCallOrder1, typeCallOrder, typeVisitorCallOrder2);
 
-        TypeUtils.conditionalVisitForType(
+        PackageUtils.conditionalVisitForType(
                 this.mockVisitor,
                 mockType,
                 TypeVisitor::visitBeforeAllComplexFields,
