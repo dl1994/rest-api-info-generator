@@ -35,6 +35,7 @@ public abstract class AbstractTypeTreeWriter implements TypeVisitor {
     //
     // UTIL CLASSES AND INTERFACES
     //
+    @FunctionalInterface
     private interface IOCallable {
         void call() throws IOException;
     }

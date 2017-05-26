@@ -22,7 +22,7 @@ public class HtmlJsonTypeTreeWriter extends AbstractTypeTreeWriter {
     private static final String NEWLINE = "\n";
     private static final String SEPARATOR = ",";
     private static final String INDENT_SPACE = " ";
-    private static final String FIELD_QUOTATION = "\"";
+    private static final String COMPLEX_FIELD_QUOTATION = "\"";
     private static final String MORE_ELEMENTS_ELEMENT = "...";
     private static final String SEPARATOR_SPACE = SEPARATOR + ' ';
     private static final String SEPARATOR_NEWLINE = SEPARATOR + NEWLINE;
@@ -30,9 +30,13 @@ public class HtmlJsonTypeTreeWriter extends AbstractTypeTreeWriter {
     private static final String ENUM_CLOSING_ELEMENT = ")";
     private static final String ARRAY_OPENING_ELEMENT = "[";
     private static final String ARRAY_CLOSING_ELEMENT = SEPARATOR_SPACE + MORE_ELEMENTS_ELEMENT + ']';
+    private static final String COLLECTION_OPENING_ELEMENT = ARRAY_OPENING_ELEMENT;
+    private static final String COLLECTION_CLOSING_ELEMENT = ARRAY_CLOSING_ELEMENT;
     private static final String KEY_VALUE_SEPARATOR = ": ";
     private static final String COMPLEX_OPENING_ELEMENT = "{";
     private static final String COMPLEX_CLOSING_ELEMENT = "}";
+    private static final String MAP_OPENING_ELEMENT = COMPLEX_OPENING_ELEMENT;
+    private static final String MAP_CLOSING_ELEMENT = COMPLEX_CLOSING_ELEMENT;
     private static final Map<SimpleType, String> SIMPLE_TYPE_MAPPINGS = new EnumMap<>(SimpleType.class);
 
     static {
@@ -65,14 +69,6 @@ public class HtmlJsonTypeTreeWriter extends AbstractTypeTreeWriter {
     //
     protected int indentLevel;
     private final int indentSpacing;
-
-    public HtmlJsonTypeTreeWriter() {
-        this(DEFAULT_INDENT_SPACING);
-    }
-
-    public HtmlJsonTypeTreeWriter(int indentSpacing) {
-        this(new StringBuilder(), indentSpacing);
-    }
 
     public HtmlJsonTypeTreeWriter(Appendable stringAppender) {
         this(stringAppender, DEFAULT_INDENT_SPACING);
@@ -126,7 +122,7 @@ public class HtmlJsonTypeTreeWriter extends AbstractTypeTreeWriter {
 
     @Override
     protected void writeBeforeCollectionElementType() throws IOException {
-        this.stringAppender.append(ARRAY_OPENING_ELEMENT);
+        this.stringAppender.append(COLLECTION_OPENING_ELEMENT);
     }
 
     @Override
@@ -136,12 +132,12 @@ public class HtmlJsonTypeTreeWriter extends AbstractTypeTreeWriter {
 
     @Override
     protected void writeAfterCollectionElementType() throws IOException {
-        this.stringAppender.append(ARRAY_CLOSING_ELEMENT);
+        this.stringAppender.append(COLLECTION_CLOSING_ELEMENT);
     }
 
     @Override
     protected void writeBeforeMapKeyType() throws IOException {
-        this.stringAppender.append(COMPLEX_OPENING_ELEMENT);
+        this.stringAppender.append(MAP_OPENING_ELEMENT);
         this.stringAppender.append(NEWLINE);
         this.indentLevel += 1;
         this.indent();
@@ -175,7 +171,7 @@ public class HtmlJsonTypeTreeWriter extends AbstractTypeTreeWriter {
         this.stringAppender.append(MORE_ELEMENTS_ELEMENT);
         this.stringAppender.append(NEWLINE);
         this.indent();
-        this.stringAppender.append(COMPLEX_CLOSING_ELEMENT);
+        this.stringAppender.append(MAP_CLOSING_ELEMENT);
     }
 
     @Override
@@ -193,9 +189,9 @@ public class HtmlJsonTypeTreeWriter extends AbstractTypeTreeWriter {
     @Override
     protected void writeBeforeComplexField(String fieldName) throws IOException {
         this.indent();
-        this.stringAppender.append(FIELD_QUOTATION);
+        this.stringAppender.append(COMPLEX_FIELD_QUOTATION);
         this.stringAppender.append(fieldName);
-        this.stringAppender.append(FIELD_QUOTATION);
+        this.stringAppender.append(COMPLEX_FIELD_QUOTATION);
         this.stringAppender.append(KEY_VALUE_SEPARATOR);
     }
 
