@@ -1,17 +1,23 @@
 package at.doml.restinfo.type;
 
-import at.doml.restinfo.TypeInformation;
 import org.junit.Test;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
+import static at.doml.restinfo.type.TypeTreeStub.array;
+import static at.doml.restinfo.type.TypeTreeStub.collection;
+import static at.doml.restinfo.type.TypeTreeStub.complex;
+import static at.doml.restinfo.type.TypeTreeStub.custom;
+import static at.doml.restinfo.type.TypeTreeStub.enumConstants;
+import static at.doml.restinfo.type.TypeTreeStub.field;
+import static at.doml.restinfo.type.TypeTreeStub.map;
+import static at.doml.restinfo.type.TypeTreeStub.simple;
+import static at.doml.restinfo.type.TypeTreeStub.unknown;
 import static org.junit.Assert.fail;
 
 public final class TypeTreeGeneratorTest {
@@ -286,6 +292,119 @@ public final class TypeTreeGeneratorTest {
     }
 
     @Test
+    public void mapOfSingleNonComplexTypeShouldGenerateCorrectRootComplexType() {
+        Map<String, Type> types = new HashMap<>();
+
+        types.put("field", int.class);
+
+        this.initGenerator();
+        this.treeFor(types).assertStructure(
+                complex(
+                        field("field", simple(SimpleType.INT))
+                )
+        );
+    }
+
+    @Test
+    public void mapOfMultipleNonComplexTypesShouldGenerateCorrectRootComplexType() {
+        Map<String, Type> types = new HashMap<>();
+
+        types.put("int", int.class);
+        types.put("someField", String.class);
+        types.put("otherField", Object.class);
+        types.put("anotherField", short.class);
+
+        this.initGenerator();
+        this.treeFor(types).assertStructure(
+                complex(
+                        field("int", simple(SimpleType.INT)),
+                        field("someField", simple(SimpleType.STRING)),
+                        field("otherField", simple(SimpleType.OBJECT)),
+                        field("anotherField", simple(SimpleType.SHORT))
+                )
+        );
+    }
+
+    @Test
+    public void mapOfSingleComplexTypeShouldGenerateComplexTypeWithSameFields() {
+        Map<String, Type> types = new HashMap<>();
+
+        types.put("ignoredFieldName", new Object() {
+            @SuppressWarnings("unused")
+            public int field1;
+            @SuppressWarnings("unused")
+            public String field2;
+            @SuppressWarnings("unused")
+            public Object field3;
+        }.getClass());
+
+        this.initGenerator();
+        this.treeFor(types).assertStructure(
+                complex(
+                        field("field1", simple(SimpleType.INT)),
+                        field("field2", simple(SimpleType.STRING)),
+                        field("field3", simple(SimpleType.OBJECT))
+                )
+        );
+    }
+
+    @Test
+    public void mapOfMultipleComplexTypesShouldGenerateComplexTypeWithCombinedFields() {
+        Map<String, Type> types = new HashMap<>();
+
+        types.put("ignoredFieldName1", new Object() {
+            @SuppressWarnings("unused")
+            public int field1;
+        }.getClass());
+        types.put("ignoredFieldName2", new Object() {
+            @SuppressWarnings("unused")
+            public String field2;
+            @SuppressWarnings("unused")
+            public Object field3;
+        }.getClass());
+
+        this.initGenerator();
+        this.treeFor(types).assertStructure(
+                complex(
+                        field("field1", simple(SimpleType.INT)),
+                        field("field2", simple(SimpleType.STRING)),
+                        field("field3", simple(SimpleType.OBJECT))
+                )
+        );
+    }
+
+    @Test
+    public void mapOfMultipleComplexAndNonComplexTypesShouldGenerateCorrectRootComplexType() {
+        Map<String, Type> types = new HashMap<>();
+
+        types.put("ignoredFieldName1", new Object() {
+            @SuppressWarnings("unused")
+            public int field1;
+        }.getClass());
+        types.put("ignoredFieldName2", new Object() {
+            @SuppressWarnings("unused")
+            public String field2;
+            @SuppressWarnings("unused")
+            public Object field3;
+        }.getClass());
+        types.put("field4", Integer.class);
+        types.put("field5", String.class);
+        types.put("field6", boolean.class);
+
+        this.initGenerator();
+        this.treeFor(types).assertStructure(
+                complex(
+                        field("field1", simple(SimpleType.INT)),
+                        field("field2", simple(SimpleType.STRING)),
+                        field("field3", simple(SimpleType.OBJECT)),
+                        field("field4", simple(SimpleType.BOXED_INT)),
+                        field("field5", simple(SimpleType.STRING)),
+                        field("field6", simple(SimpleType.BOOLEAN))
+                )
+        );
+    }
+
+    @Test
     public void simpleTypesShouldHaveCorrectVisitableTypeClassesInTypeTree() {
         this.initGenerator();
         this.treeFor(byte.class).assertStructure(simple(SimpleType.BYTE));
@@ -348,17 +467,6 @@ public final class TypeTreeGeneratorTest {
     //
     // PRIVATE CLASSES
     //
-    private static final class TypeTreeStub {
-        private final VisitableType tree;
-
-        private TypeTreeStub(VisitableType tree) {
-            this.tree = tree;
-        }
-
-        private void assertStructure(TypeTreeChecker expectedTree) {
-            expectedTree.assertType(this.tree);
-        }
-    }
 
     private enum TestEnum {
         @SuppressWarnings("unused")
@@ -367,16 +475,6 @@ public final class TypeTreeGeneratorTest {
         CONST_2,
         @SuppressWarnings("unused")
         CONST_3
-    }
-
-    private static final class None implements VisitableType {
-
-        private static final VisitableType INSTANCE = new None();
-
-        @Override
-        public void accept(TypeVisitor typeVisitor) {
-            // Not visited
-        }
     }
 
     //
@@ -405,6 +503,10 @@ public final class TypeTreeGeneratorTest {
         return new TypeTreeStub(this.generator.generateTree(type));
     }
 
+    private TypeTreeStub treeFor(Map<String, Type> types) {
+        return new TypeTreeStub(this.generator.generateTree(types));
+    }
+
     private TypeTreeStub treeFromTestObject(Object object) {
         try {
             return this.treeFor(
@@ -416,60 +518,5 @@ public final class TypeTreeGeneratorTest {
             fail("provided object has no field named \"test\" from which to fetch type information");
             throw new RuntimeException(e); // to make compiler happy
         }
-    }
-
-    private static TypeTreeChecker simple(SimpleType expectedType) {
-        return new SimpleTypeChecker(expectedType);
-    }
-
-    @SafeVarargs
-    private static TypeTreeChecker complex(Map.Entry<String, TypeTreeChecker>... fields) {
-        Map<String, TypeTreeChecker> expectedFieldCheckers = new HashMap<>();
-
-        for (Map.Entry<String, TypeTreeChecker> field : fields) {
-            expectedFieldCheckers.put(field.getKey(), field.getValue());
-        }
-
-        return new ComplexTypeChecker(new ComplexType(), expectedFieldCheckers);
-    }
-
-    private static TypeTreeChecker custom(String typeName) {
-        return customOrUnknown(typeName, CustomType::new);
-    }
-
-    private static TypeTreeChecker unknown() {
-        return customOrUnknown("unknown", UnknownType::new);
-    }
-
-    private static TypeTreeChecker customOrUnknown(String typeName,
-                                                   Function<TypeInformation, CustomOrUnknownType> constructor) {
-        return new CustomOrUnknownTypeChecker<>(constructor.apply(
-                new TypeInformation(typeName, new TypeInformation[0], 0)
-        ));
-    }
-
-    private static Map.Entry<String, TypeTreeChecker> field(String name, TypeTreeChecker checker) {
-        return new AbstractMap.SimpleEntry<>(name, checker);
-    }
-
-    private static TypeTreeChecker enumConstants(Enum[] expectedConstants) {
-        return new EnumTypeChecker(new EnumType(expectedConstants));
-    }
-
-    private static TypeTreeChecker array(TypeTreeChecker expectedTypeTreeChecker) {
-        return collectionOrArray(expectedTypeTreeChecker, ArrayType::new);
-    }
-
-    private static TypeTreeChecker collection(TypeTreeChecker expectedTypeTreeChecker) {
-        return collectionOrArray(expectedTypeTreeChecker, CollectionType::new);
-    }
-
-    private static TypeTreeChecker map(TypeTreeChecker keyChecker, TypeTreeChecker valueChecker) {
-        return new MapTypeChecker(new MapType(None.INSTANCE, None.INSTANCE), keyChecker, valueChecker);
-    }
-
-    private static TypeTreeChecker collectionOrArray(TypeTreeChecker expectedTypeTreeChecker,
-                                                     Function<VisitableType, CollectionOrArrayType> constructor) {
-        return new CollectionOrArrayTypeChecker<>(constructor.apply(None.INSTANCE), expectedTypeTreeChecker);
     }
 }
