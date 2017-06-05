@@ -4,14 +4,14 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import java.util.AbstractMap;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 // TODO needs tests
 public final class RestApiInfoGenerator {
@@ -26,6 +26,7 @@ public final class RestApiInfoGenerator {
     //
     // CONSTRUCTORS AND MEMBER VARIABLES
     //
+    private final int numberOfControllers;
     private final Map<String, List<ControllerInfo>> apiSections;
 
     public RestApiInfoGenerator(RequestMappingHandlerMapping handlerMapping) {
@@ -49,6 +50,10 @@ public final class RestApiInfoGenerator {
                         RestApiInfoGenerator::wrapValueInList,
                         RestApiInfoGenerator::concatLists
                 ));
+        this.numberOfControllers = this.apiSections.values()
+                .stream()
+                .mapToInt(Collection::size)
+                .sum();
     }
 
     //
@@ -64,12 +69,14 @@ public final class RestApiInfoGenerator {
     }
 
     private static List<ControllerInfo> wrapValueInList(Map.Entry<String, ControllerInfo> entry) {
-        return Collections.singletonList(entry.getValue());
+        List<ControllerInfo> wrapped = new ArrayList<>();
+        wrapped.add(entry.getValue());
+        return wrapped;
     }
 
     private static List<ControllerInfo> concatLists(List<ControllerInfo> left, List<ControllerInfo> right) {
-        return Stream.concat(left.stream(), right.stream())
-                .collect(Collectors.toList());
+        left.addAll(right);
+        return left;
     }
 
     //
@@ -83,5 +90,13 @@ public final class RestApiInfoGenerator {
             controllerInfos.forEach(controllerInfo -> onControllerInfo.accept(apiSectionName, controllerInfo));
             afterApiSection.accept(apiSectionName);
         });
+    }
+
+    public int getNumberOfApiSections() {
+        return this.apiSections.size();
+    }
+
+    public int getNumberOfControllers() {
+        return this.numberOfControllers;
     }
 }
