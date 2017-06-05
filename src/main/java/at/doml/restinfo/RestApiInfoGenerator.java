@@ -13,7 +13,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-// TODO needs tests
 public final class RestApiInfoGenerator {
 
     //
