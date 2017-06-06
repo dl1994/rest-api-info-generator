@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
-public final class GeneratorSettings {
+public final class RestApiInfoSettings {
 
     //
     // CONSTRUCTORS AND MEMBER VARIABLES
@@ -16,8 +16,8 @@ public final class GeneratorSettings {
     final TypeTreeGenerator typeTreeGenerator;
     final Function<String, String> apiSectionNamingStrategy;
 
-    private GeneratorSettings(Set<Class<?>> excludedControllers, TypeTreeGenerator typeTreeGenerator,
-                              Function<String, String> apiSectionNamingStrategy) {
+    private RestApiInfoSettings(Set<Class<?>> excludedControllers, TypeTreeGenerator typeTreeGenerator,
+                                Function<String, String> apiSectionNamingStrategy) {
         this.excludedControllers = excludedControllers;
         this.typeTreeGenerator = typeTreeGenerator;
         this.apiSectionNamingStrategy = apiSectionNamingStrategy;
@@ -89,8 +89,8 @@ public final class GeneratorSettings {
             return this;
         }
 
-        public GeneratorSettings build() {
-            return new GeneratorSettings(this.excludedControllers, this.typeTreeGenerator,
+        public RestApiInfoSettings build() {
+            return new RestApiInfoSettings(this.excludedControllers, this.typeTreeGenerator,
                     this.apiSectionNamingStrategy);
         }
     }

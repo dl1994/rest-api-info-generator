@@ -10,7 +10,7 @@ import java.util.function.Function;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
-public final class GeneratorSettingsTest {
+public final class RestApiInfoSettingsTest {
 
     //
     // TESTS
@@ -18,7 +18,7 @@ public final class GeneratorSettingsTest {
     @Test
     public void defaultSectionNamingStrategyShouldSplitWordsAndRemoveControllerSuffix() {
         String controllerName = "ThisIsSomeController";
-        GeneratorSettings settings = GeneratorSettings.builder().build();
+        RestApiInfoSettings settings = RestApiInfoSettings.builder().build();
 
         assertEquals(
                 "controller name is incorrect",
@@ -28,9 +28,9 @@ public final class GeneratorSettingsTest {
     }
 
     @Test
-    public void generatorSettingsBuilderShouldBuildGeneratorSettingsWithCorrectApiSectionNamingStrategy() {
+    public void restApiInfoSettingsBuilderShouldBuildRestApiInfoSettingsWithCorrectApiSectionNamingStrategy() {
         Function<String, String> strategy = s -> s;
-        GeneratorSettings settings = GeneratorSettings.builder()
+        RestApiInfoSettings settings = RestApiInfoSettings.builder()
                 .apiSectionNamingStrategy(strategy)
                 .build();
 
@@ -38,14 +38,14 @@ public final class GeneratorSettingsTest {
     }
 
     @Test(expected = NullPointerException.class)
-    public void generatorSettingsBuilderShouldThrowExceptionForNullApiSectionNamingStrategy() {
-        GeneratorSettings.builder().apiSectionNamingStrategy(null);
+    public void restApiInfoSettingsBuilderShouldThrowExceptionForNullApiSectionNamingStrategy() {
+        RestApiInfoSettings.builder().apiSectionNamingStrategy(null);
     }
 
     @Test
-    public void generatorSettingsBuilderShouldBuildGeneratorSettingsWithCorrectTypeTreeGenerator() {
+    public void restApiInfoSettingsBuilderShouldBuildRestApiInfoSettingsWithCorrectTypeTreeGenerator() {
         TypeTreeGenerator generator = new TypeTreeGenerator();
-        GeneratorSettings settings = GeneratorSettings.builder()
+        RestApiInfoSettings settings = RestApiInfoSettings.builder()
                 .typeTreeGenerator(generator)
                 .build();
 
@@ -53,14 +53,14 @@ public final class GeneratorSettingsTest {
     }
 
     @Test(expected = NullPointerException.class)
-    public void generatorSettingsBuilderShouldThrowExceptionForNullTypeTreeGenerator() {
-        GeneratorSettings.builder().typeTreeGenerator(null);
+    public void restApiInfoSettingsBuilderShouldThrowExceptionForNullTypeTreeGenerator() {
+        RestApiInfoSettings.builder().typeTreeGenerator(null);
     }
 
     @Test
-    public void generatorSettingsBuilderShouldBuildGeneratorSettingsWithCorrectExcludedControllerClass() {
+    public void restApiInfoSettingsBuilderShouldBuildRestApiInfoSettingsWithCorrectExcludedControllerClass() {
         Set<Class<?>> excludedClasses = Collections.singleton(Integer.class);
-        GeneratorSettings settings = GeneratorSettings.builder()
+        RestApiInfoSettings settings = RestApiInfoSettings.builder()
                 .exclude(Integer.class)
                 .build();
 
@@ -68,14 +68,14 @@ public final class GeneratorSettingsTest {
     }
 
     @Test(expected = NullPointerException.class)
-    public void generatorSettingsShouldThrowExceptionForExclusionOfNullController() {
-        GeneratorSettings.builder().exclude(null);
+    public void restApiInfoSettingsShouldThrowExceptionForExclusionOfNullController() {
+        RestApiInfoSettings.builder().exclude(null);
     }
 
     @Test
-    public void generatorSettingsBuilderShouldBuildGeneratorSettingsWithCorrectExcludedControllerClasses() {
+    public void restApiInfoSettingsBuilderShouldBuildRestApiInfoSettingsWithCorrectExcludedControllerClasses() {
         Set<Class<?>> excludedClasses = new HashSet<>(Arrays.asList(Integer.class, String.class, Short.class));
-        GeneratorSettings settings = GeneratorSettings.builder()
+        RestApiInfoSettings settings = RestApiInfoSettings.builder()
                 .exclude(Integer.class, String.class, Short.class)
                 .build();
 
@@ -83,14 +83,14 @@ public final class GeneratorSettingsTest {
     }
 
     @Test(expected = NullPointerException.class)
-    public void generatorSettingsShouldThrowExceptionForExclusionOfNullControllers() {
-        GeneratorSettings.builder().exclude(Void.class, (Class<?>[]) null);
+    public void restApiInfoSettingsShouldThrowExceptionForExclusionOfNullControllers() {
+        RestApiInfoSettings.builder().exclude(Void.class, (Class<?>[]) null);
     }
 
     @Test
-    public void multipleExcludeCallsInGeneratorSettingsBuilderShouldExcludeAllClassesFromAllCalls() {
+    public void multipleExcludeCallsInRestApiInfoSettingsBuilderShouldExcludeAllClassesFromAllCalls() {
         Set<Class<?>> excludedClasses = new HashSet<>(Arrays.asList(Integer.class, String.class, Short.class));
-        GeneratorSettings settings = GeneratorSettings.builder()
+        RestApiInfoSettings settings = RestApiInfoSettings.builder()
                 .exclude(Integer.class)
                 .exclude(String.class, Short.class)
                 .build();
@@ -99,8 +99,8 @@ public final class GeneratorSettingsTest {
     }
 
     @Test(expected = NullPointerException.class)
-    public void generatorSettingsShouldThrowExceptionForExclusionOfNullControllersElement() {
-        GeneratorSettings.builder().exclude(Void.class, (Class<?>) null);
+    public void restApiInfoSettingsShouldThrowExceptionForExclusionOfNullControllersElement() {
+        RestApiInfoSettings.builder().exclude(Void.class, (Class<?>) null);
     }
 
     //

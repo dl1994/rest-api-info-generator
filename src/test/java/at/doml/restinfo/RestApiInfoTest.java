@@ -1,5 +1,6 @@
 package at.doml.restinfo;
 
+import at.doml.restinfo.type.TypeTreeGenerator;
 import org.hamcrest.Matcher;
 import org.hamcrest.core.Is;
 import org.junit.Test;
@@ -12,17 +13,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-public final class RestApiInfoGeneratorTest {
+public final class RestApiInfoTest {
 
     //
     // TESTS
     //
     @Test
-    public void restApiInfoGeneratorShouldGenerateCorrectNumberOfControllersAndApiSectionsWhenNoneAreExcluded() {
+    public void restApiInfoShouldGenerateCorrectNumberOfControllersAndApiSectionsWhenNoneAreExcluded() {
         final class SomeApiSection {}
         final class SomeOtherApiSection {}
 
-        RestApiInfoGenerator restApiInfoGenerator = restApiInfoGenerator(
+        RestApiInfo restApiInfo = restApiInfo(
                 handlerMapping().handlerMethod(requestMapping().beanType(SomeApiSection.class).path("path1"))
                         .handlerMethod(requestMapping().beanType(SomeApiSection.class).path("path2"))
                         .handlerMethod(requestMapping().beanType(SomeApiSection.class).path("path3"))
@@ -30,18 +31,18 @@ public final class RestApiInfoGeneratorTest {
                         .handlerMethod(requestMapping().beanType(SomeOtherApiSection.class).path("path5"))
         );
 
-        assertValue("number of api sections", 2, restApiInfoGenerator.getNumberOfApiSections());
-        assertValue("number of controllers", 5, restApiInfoGenerator.getNumberOfControllers());
+        assertValue("number of api sections", 2, restApiInfo.getNumberOfApiSections());
+        assertValue("number of controllers", 5, restApiInfo.getNumberOfControllers());
     }
 
     @Test
-    public void restApiInfoGeneratorShouldGenerateCorrectNumberOfControllersAndApiSectionsWhenSomeAreExcluded() {
+    public void restApiInfoShouldGenerateCorrectNumberOfControllersAndApiSectionsWhenSomeAreExcluded() {
         final class SomeApiSection {}
         final class SomeOtherApiSection {}
         final class IgnoredApiSection {}
 
-        RestApiInfoGenerator restApiInfoGenerator = restApiInfoGenerator(
-                GeneratorSettings.builder().exclude(IgnoredApiSection.class),
+        RestApiInfo restApiInfo = restApiInfo(
+                RestApiInfoSettings.builder().exclude(IgnoredApiSection.class),
                 handlerMapping().handlerMethod(requestMapping().beanType(SomeApiSection.class).path("path1"))
                         .handlerMethod(requestMapping().beanType(SomeApiSection.class).path("path2"))
                         .handlerMethod(requestMapping().beanType(IgnoredApiSection.class).path("path3"))
@@ -49,17 +50,17 @@ public final class RestApiInfoGeneratorTest {
                         .handlerMethod(requestMapping().beanType(SomeOtherApiSection.class).path("path5"))
         );
 
-        assertValue("number of api sections", 2, restApiInfoGenerator.getNumberOfApiSections());
-        assertValue("number of controllers", 3, restApiInfoGenerator.getNumberOfControllers());
+        assertValue("number of api sections", 2, restApiInfo.getNumberOfApiSections());
+        assertValue("number of controllers", 3, restApiInfo.getNumberOfControllers());
     }
 
     @Test
-    public void restApiInfoGeneratorShouldGroupControllerInfosIntoCorrectApiSections() {
+    public void restApiInfoShouldGroupControllerInfosIntoCorrectApiSections() {
         final class SomeApiSection {}
         final class SomeOtherApiSection {}
 
-        RestApiInfoGenerator restApiInfoGenerator = restApiInfoGenerator(
-                GeneratorSettings.builder().apiSectionNamingStrategy(n -> n),
+        RestApiInfo restApiInfo = restApiInfo(
+                RestApiInfoSettings.builder().apiSectionNamingStrategy(n -> n),
                 handlerMapping().handlerMethod(requestMapping().beanType(SomeApiSection.class).path("path1"))
                         .handlerMethod(requestMapping().beanType(SomeOtherApiSection.class).path("path2"))
                         .handlerMethod(requestMapping().beanType(SomeApiSection.class).path("path3"))
@@ -69,7 +70,7 @@ public final class RestApiInfoGeneratorTest {
 
         int[] controllerInfoCounts = new int[2];
 
-        restApiInfoGenerator.forEachApiSection(
+        restApiInfo.forEachApiSection(
                 n -> {},
                 (name, info) -> {
                     if (Objects.equals(name, SomeApiSection.class.getSimpleName())) {
@@ -90,17 +91,17 @@ public final class RestApiInfoGeneratorTest {
     }
 
     @Test
-    public void restApiInfoGeneratorShouldNameApiSectionsUsingProvidedNamingStrategy() {
+    public void restApiInfoShouldNameApiSectionsUsingProvidedNamingStrategy() {
         final class SomeApiSection {}
         final class SomeOtherApiSection {}
 
-        RestApiInfoGenerator restApiInfoGenerator = restApiInfoGenerator(
-                GeneratorSettings.builder().apiSectionNamingStrategy(String::toUpperCase),
+        RestApiInfo restApiInfo = restApiInfo(
+                RestApiInfoSettings.builder().apiSectionNamingStrategy(String::toUpperCase),
                 handlerMapping().handlerMethod(requestMapping().beanType(SomeApiSection.class).path("path1"))
                         .handlerMethod(requestMapping().beanType(SomeOtherApiSection.class).path("path2"))
         );
 
-        restApiInfoGenerator.forEachApiSection(
+        restApiInfo.forEachApiSection(
                 name -> assertNameIsAnyOf(name,
                         SomeApiSection.class.getSimpleName().toUpperCase(),
                         SomeOtherApiSection.class.getSimpleName().toUpperCase()
@@ -110,18 +111,44 @@ public final class RestApiInfoGeneratorTest {
         );
     }
 
-    // TODO maybe test if uses correct type tree generator?
+    @Test
+    public void restApiInfoShouldUseProvidedTypeTreeGenerator() {
+        final class ApiSection {}
+        final class CustomType {}
+        TypeTreeGenerator generator = new TypeTreeGenerator();
+
+        generator.registerCustomType(CustomType.class);
+
+        RestApiInfo restApiInfo = restApiInfo(
+                RestApiInfoSettings.builder().typeTreeGenerator(generator),
+                handlerMapping().handlerMethod(
+                        requestMapping().beanType(ApiSection.class)
+                                .responseBody(CustomType.class)
+                                .path("path")
+                )
+        );
+
+        restApiInfo.forEachApiSection(
+                n -> {},
+                (n, info) -> assertEquals(
+                        "custom type was expected",
+                        "at.doml.restinfo.type.CustomType",
+                        info.getResponseBodyTypeTree().getClass().getName()
+                ),
+                n -> {}
+        );
+    }
 
     //
     // HELPER METHODS
     //
-    private static RestApiInfoGenerator restApiInfoGenerator(MockUtils.RequestMappingHandlerMappingBuilder builder) {
-        return new RestApiInfoGenerator(builder.build());
+    private static RestApiInfo restApiInfo(MockUtils.RequestMappingHandlerMappingBuilder builder) {
+        return new RestApiInfo(builder.build());
     }
 
-    private static RestApiInfoGenerator restApiInfoGenerator(GeneratorSettings.Builder generatorSettingsBuilder,
-                                                             MockUtils.RequestMappingHandlerMappingBuilder builder) {
-        return new RestApiInfoGenerator(generatorSettingsBuilder.build(), builder.build());
+    private static RestApiInfo restApiInfo(RestApiInfoSettings.Builder settingsBuilder,
+                                           MockUtils.RequestMappingHandlerMappingBuilder builder) {
+        return new RestApiInfo(settingsBuilder.build(), builder.build());
     }
 
     @SuppressWarnings("unchecked")

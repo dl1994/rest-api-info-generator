@@ -13,7 +13,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public final class RestApiInfoGenerator {
+public final class RestApiInfo {
 
     //
     // CONSTANTS
@@ -28,11 +28,11 @@ public final class RestApiInfoGenerator {
     private final int numberOfControllers;
     private final Map<String, List<ControllerInfo>> apiSections;
 
-    public RestApiInfoGenerator(RequestMappingHandlerMapping handlerMapping) {
-        this(GeneratorSettings.builder().build(), handlerMapping);
+    public RestApiInfo(RequestMappingHandlerMapping handlerMapping) {
+        this(RestApiInfoSettings.builder().build(), handlerMapping);
     }
 
-    public RestApiInfoGenerator(GeneratorSettings settings, RequestMappingHandlerMapping handlerMapping) {
+    public RestApiInfo(RestApiInfoSettings settings, RequestMappingHandlerMapping handlerMapping) {
         Objects.requireNonNull(settings, SETTINGS_NOT_NULL);
 
         this.apiSections = Objects.requireNonNull(handlerMapping, HANDLER_MAPPING_NOT_NULL)
@@ -46,8 +46,8 @@ public final class RestApiInfoGenerator {
                     return new AbstractMap.SimpleEntry<>(apiSectionName, createControllerInfo(e, settings));
                 }).collect(Collectors.toMap(
                         Map.Entry::getKey,
-                        RestApiInfoGenerator::wrapValueInList,
-                        RestApiInfoGenerator::concatLists
+                        RestApiInfo::wrapValueInList,
+                        RestApiInfo::concatLists
                 ));
         this.numberOfControllers = this.apiSections.values()
                 .stream()
@@ -58,12 +58,13 @@ public final class RestApiInfoGenerator {
     //
     // HELPER METHODS
     //
-    private static boolean notExcluded(Map.Entry<RequestMappingInfo, HandlerMethod> entry, GeneratorSettings settings) {
+    private static boolean notExcluded(Map.Entry<RequestMappingInfo, HandlerMethod> entry,
+                                       RestApiInfoSettings settings) {
         return !settings.excludedControllers.contains(entry.getValue().getBeanType());
     }
 
     private static ControllerInfo createControllerInfo(Map.Entry<RequestMappingInfo, HandlerMethod> entry,
-                                                       GeneratorSettings settings) {
+                                                       RestApiInfoSettings settings) {
         return new ControllerInfo(settings.typeTreeGenerator, entry);
     }
 
