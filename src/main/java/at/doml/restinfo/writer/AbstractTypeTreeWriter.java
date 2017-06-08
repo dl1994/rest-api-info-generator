@@ -1,6 +1,7 @@
-package at.doml.restinfo;
+package at.doml.restinfo.writer;
 
 import at.doml.restinfo.type.SimpleType;
+import at.doml.restinfo.type.TypeInformation;
 import at.doml.restinfo.type.TypeVisitor;
 import java.io.IOException;
 import java.util.Objects;

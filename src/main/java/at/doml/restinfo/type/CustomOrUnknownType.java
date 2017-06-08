@@ -1,7 +1,5 @@
 package at.doml.restinfo.type;
 
-import at.doml.restinfo.TypeInformation;
-
 /**
  * Abstract class which represents custom or unknown type in type tree.
  *

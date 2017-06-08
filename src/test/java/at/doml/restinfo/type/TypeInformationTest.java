@@ -1,4 +1,4 @@
-package at.doml.restinfo;
+package at.doml.restinfo.type;
 
 import org.junit.Test;
 import java.util.Collection;

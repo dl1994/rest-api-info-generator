@@ -1,7 +1,5 @@
 package at.doml.restinfo.type;
 
-import at.doml.restinfo.TypeInformation;
-
 /**
  * Class which represents unknown type in type tree. When <code>TypeVisitor</code> object visits an instance of this
  * class, {@link TypeVisitor#visitUnknown(TypeInformation)} method will be called on the visitor object, passing it a

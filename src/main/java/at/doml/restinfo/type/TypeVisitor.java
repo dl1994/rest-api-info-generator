@@ -1,6 +1,5 @@
 package at.doml.restinfo.type;
 
-import at.doml.restinfo.TypeInformation;
 import java.lang.reflect.Type;
 
 /**

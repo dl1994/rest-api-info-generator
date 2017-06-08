@@ -1,6 +1,7 @@
-package at.doml.restinfo;
+package at.doml.restinfo.writer;
 
 import at.doml.restinfo.type.SimpleType;
+import at.doml.restinfo.type.TypeInformation;
 import java.io.IOException;
 import java.util.EnumMap;
 import java.util.Map;
@@ -76,7 +77,18 @@ public class HtmlJsonTypeTreeWriter extends AbstractTypeTreeWriter {
 
     public HtmlJsonTypeTreeWriter(Appendable stringAppender, int indentSpacing) {
         super(stringAppender);
-        this.indentSpacing = PackageUtils.requireNonNegative(indentSpacing, INDENT_SPACING_NON_NEGATIVE);
+        this.indentSpacing = requireNonNegative(indentSpacing, INDENT_SPACING_NON_NEGATIVE);
+    }
+
+    //
+    // HELPER METHODS
+    //
+    private static int requireNonNegative(int value, String message) {
+        if (value < 0) {
+            throw new IllegalArgumentException(message);
+        }
+
+        return value;
     }
 
     //

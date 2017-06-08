@@ -1,4 +1,4 @@
-package at.doml.restinfo;
+package at.doml.restinfo.writer;
 
 public class TypeWriterException extends RuntimeException {
 

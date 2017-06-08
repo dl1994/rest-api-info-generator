@@ -1,6 +1,7 @@
-package at.doml.restinfo;
+package at.doml.restinfo.writer;
 
 import at.doml.restinfo.type.SimpleType;
+import at.doml.restinfo.type.TypeInformation;
 import org.junit.Assert;
 import org.junit.Test;
 import java.io.IOException;

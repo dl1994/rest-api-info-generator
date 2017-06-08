@@ -1,4 +1,4 @@
-package at.doml.restinfo;
+package at.doml.restinfo.type;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -115,15 +115,27 @@ public final class TypeInformation {
                 TYPE_NAME_VALIDATOR, TYPE_REGEX_MUST_BE_VALID
         );
         this.typeParameters = Objects.requireNonNull(typeParameters, TYPE_PARAMETERS_NOT_NULL).clone();
-        this.arrayDimension = PackageUtils.requireNonNegative(arrayDimension, ARRAY_DIMENSION_NON_NEGATIVE);
+        this.arrayDimension = requireNonNegative(arrayDimension, ARRAY_DIMENSION_NON_NEGATIVE);
     }
 
     //
     // HELPER METHODS
     //
 
+    private static int requireNonNegative(int value, String message) {
+        return requireCondition(value, v -> v >= 0, message);
+    }
+
     private static String requireRegexConformity(String value, Predicate<String> checker, String message) {
-        return PackageUtils.requireCondition(value, checker, message);
+        return requireCondition(value, checker, message);
+    }
+
+    private static <T> T requireCondition(T value, Predicate<T> condition, String message) {
+        if (!condition.test(value)) {
+            throw new IllegalArgumentException(message);
+        }
+
+        return value;
     }
 
     private static Type typeFromString(String typeName) {

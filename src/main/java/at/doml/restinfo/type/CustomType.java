@@ -1,7 +1,5 @@
 package at.doml.restinfo.type;
 
-import at.doml.restinfo.TypeInformation;
-
 /**
  * Class which represents custom type in type tree. When <code>TypeVisitor</code> object visits an instance of this
  * class, {@link TypeVisitor#visitCustom(TypeInformation)} method will be called on the visitor object, passing it a

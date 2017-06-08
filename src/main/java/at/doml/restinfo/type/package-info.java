@@ -4,6 +4,7 @@
  * Notable classes and interfaces:<ul>
  * <li>{@link at.doml.restinfo.type.TypeVisitor}</li>
  * <li>{@link at.doml.restinfo.type.VisitableType}</li>
+ * <li>{@link at.doml.restinfo.type.TypeInformation}</li>
  * <li>{@link at.doml.restinfo.type.TypeTreeGenerator}</li>
  * </ul>
  *

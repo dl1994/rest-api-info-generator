@@ -1,6 +1,5 @@
 package at.doml.restinfo.type;
 
-import at.doml.restinfo.TypeInformation;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
