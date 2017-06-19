@@ -10,6 +10,11 @@ import java.util.regex.Pattern;
 public final class RestApiInfoSettings {
 
     //
+    // CONSTANTS
+    //
+    public static final RestApiInfoSettings DEFAULT = builder().build();
+
+    //
     // CONSTRUCTORS AND MEMBER VARIABLES
     //
     final Set<Class<?>> excludedControllers;

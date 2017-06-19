@@ -18,7 +18,7 @@ public final class RestApiInfoSettingsTest {
     @Test
     public void defaultSectionNamingStrategyShouldSplitWordsAndRemoveControllerSuffix() {
         String controllerName = "ThisIsSomeController";
-        RestApiInfoSettings settings = RestApiInfoSettings.builder().build();
+        RestApiInfoSettings settings = RestApiInfoSettings.DEFAULT;
 
         assertEquals(
                 "controller name is incorrect",

@@ -29,7 +29,7 @@ public final class RestApiInfo {
     private final Map<String, List<ControllerInfo>> apiSections;
 
     public RestApiInfo(RequestMappingHandlerMapping handlerMapping) {
-        this(RestApiInfoSettings.builder().build(), handlerMapping);
+        this(RestApiInfoSettings.DEFAULT, handlerMapping);
     }
 
     public RestApiInfo(RestApiInfoSettings settings, RequestMappingHandlerMapping handlerMapping) {

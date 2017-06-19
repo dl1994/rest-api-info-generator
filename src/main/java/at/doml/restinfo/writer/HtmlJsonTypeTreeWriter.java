@@ -12,7 +12,6 @@ public class HtmlJsonTypeTreeWriter extends AbstractTypeTreeWriter {
     // CONSTANTS
     //
     private static final int DEFAULT_INDENT_SPACING = 4;
-    private static final String INDENT_SPACING_NON_NEGATIVE = "indentSpacing must not be negative";
     private static final String OBJECT_STRING = "{}";
     private static final String NOTHING_STRING = "<b class=\"keyword\">null</b>";
     private static final String NUMBER_STRING = "<b class=\"number\">0</b>";
@@ -77,18 +76,7 @@ public class HtmlJsonTypeTreeWriter extends AbstractTypeTreeWriter {
 
     public HtmlJsonTypeTreeWriter(Appendable stringAppender, int indentSpacing) {
         super(stringAppender);
-        this.indentSpacing = requireNonNegative(indentSpacing, INDENT_SPACING_NON_NEGATIVE);
-    }
-
-    //
-    // HELPER METHODS
-    //
-    private static int requireNonNegative(int value, String message) {
-        if (value < 0) {
-            throw new IllegalArgumentException(message);
-        }
-
-        return value;
+        this.indentSpacing = PackageUtils.requireNonNegativeIndentSpacing(indentSpacing);
     }
 
     //
