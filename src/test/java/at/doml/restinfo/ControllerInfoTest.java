@@ -29,7 +29,7 @@ public final class ControllerInfoTest {
         assertNoInfo("response body type", controllerInfo.getResponseBodyTypeTree());
         assertNoInfo("request body type", controllerInfo.getRequestBodyTypeTree());
         assertNoInfo("path variables", controllerInfo.getPathVariablesTypeTree());
-        assertNoInfo("model attributes", controllerInfo.getModelAttributesTypeTree());
+        assertNoInfo("query parameters", controllerInfo.getQueryParametersTypeTree());
     }
 
     @Test
@@ -84,6 +84,18 @@ public final class ControllerInfoTest {
     }
 
     @Test
+    public void controllerInfoShouldExtractCorrectPathVariable() {
+        ControllerInfo controllerInfo = controllerInfo(
+                requestMapping().pathVariable("pathVariable", String.class)
+        );
+
+        new TypeTreeStub(controllerInfo.getPathVariablesTypeTree())
+                .assertStructure(complex(
+                        field("pathVariable", simple(SimpleType.STRING))
+                ));
+    }
+
+    @Test
     public void controllerInfoShouldExtractCorrectPathVariables() {
         ControllerInfo controllerInfo = controllerInfo(
                 requestMapping().pathVariable("someVariable", String.class)
@@ -103,6 +115,18 @@ public final class ControllerInfoTest {
     }
 
     @Test
+    public void controllerInfoShouldExtractCorrectModelAttribute() {
+        ControllerInfo controllerInfo = controllerInfo(
+                requestMapping().modelAttribute("singleModelAttribute", String.class)
+        );
+
+        new TypeTreeStub(controllerInfo.getQueryParametersTypeTree())
+                .assertStructure(complex(
+                        field("singleModelAttribute", simple(SimpleType.STRING))
+                ));
+    }
+
+    @Test
     public void controllerInfoShouldExtractCorrectModelAttributes() {
         ControllerInfo controllerInfo = controllerInfo(
                 requestMapping().modelAttribute("something", String.class)
@@ -112,7 +136,7 @@ public final class ControllerInfoTest {
                         }.getClass())
         );
 
-        new TypeTreeStub(controllerInfo.getModelAttributesTypeTree())
+        new TypeTreeStub(controllerInfo.getQueryParametersTypeTree())
                 .assertStructure(complex(
                         field("something", simple(SimpleType.STRING)),
                         field("somethingElse", simple(SimpleType.STRING))

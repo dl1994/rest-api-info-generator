@@ -2,6 +2,7 @@ package at.doml.restinfo;
 
 import at.doml.restinfo.type.TypeTreeGenerator;
 import at.doml.restinfo.type.VisitableType;
+import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,7 +35,7 @@ public final class ControllerInfo {
     private final String requestMethod;
     private final VisitableType requestBodyTypeTree;
     private final VisitableType responseBodyTypeTree;
-    private final VisitableType modelAttributesTypeTree;
+    private final VisitableType queryParametersTypeTree;
     private final VisitableType pathVariablesTypeTree;
 
     ControllerInfo(TypeTreeGenerator typeTreeGenerator, Map.Entry<RequestMappingInfo, HandlerMethod> requestMapping) {
@@ -55,9 +56,9 @@ public final class ControllerInfo {
                 typeTreeGenerator,
                 getAllParametersForAnnotation(handlerMethod, PathVariable.class)
         );
-        this.modelAttributesTypeTree = generateTree(
+        this.queryParametersTypeTree = generateTree(
                 typeTreeGenerator,
-                getAllParametersForAnnotation(handlerMethod, ModelAttribute.class)
+                getAllParametersForAnnotation(handlerMethod, ModelAttribute.class) // TODO support for RequestParameter
         );
         this.path = requestMappingInfo.getPatternsCondition()
                 .getPatterns()
@@ -87,25 +88,26 @@ public final class ControllerInfo {
                 .orElse(null);
     }
 
-    private static <A extends Annotation> Map<String, Type> getAllParametersForAnnotation(
-            HandlerMethod handlerMethod, Class<A> annotation) {
+    private static Map<String, Type> getAllParametersForAnnotation(HandlerMethod handlerMethod,
+                                                                   Class<? extends Annotation> annotation) {
         Map<String, Type> map = filterTypesForAnnotation(handlerMethod, annotation)
                 .collect(Collectors.toMap(MethodParameter::getParameterName, MethodParameter::getGenericParameterType));
         return map.isEmpty() ? null : map;
     }
 
-    private static <A extends Annotation> Type getSingleParameterForAnnotation(HandlerMethod handlerMethod,
-                                                                               Class<A> annotation) {
+    private static Type getSingleParameterForAnnotation(HandlerMethod handlerMethod,
+                                                        Class<? extends Annotation> annotation) {
         return filterTypesForAnnotation(handlerMethod, annotation)
                 .findFirst()
                 .map(MethodParameter::getGenericParameterType)
                 .orElse(null);
     }
 
-    private static <A extends Annotation> Stream<MethodParameter> filterTypesForAnnotation(HandlerMethod handlerMethod,
-                                                                                           Class<A> annotation) {
+    private static Stream<MethodParameter> filterTypesForAnnotation(HandlerMethod handlerMethod,
+                                                                    Class<? extends Annotation> annotation) {
         return Arrays.stream(handlerMethod.getMethodParameters())
-                .filter(p -> p.hasParameterAnnotation(annotation));
+                .filter(p -> p.hasParameterAnnotation(annotation))
+                .peek(p -> p.initParameterNameDiscovery(new DefaultParameterNameDiscoverer()));
     }
 
     private static Type getResponseBodyType(HandlerMethod handlerMethod) {
@@ -136,8 +138,8 @@ public final class ControllerInfo {
         return this.responseBodyTypeTree;
     }
 
-    public VisitableType getModelAttributesTypeTree() {
-        return this.modelAttributesTypeTree;
+    public VisitableType getQueryParametersTypeTree() {
+        return this.queryParametersTypeTree;
     }
 
     public VisitableType getPathVariablesTypeTree() {

@@ -23,7 +23,7 @@ public final class RestApiInfoSettings {
 
     private RestApiInfoSettings(Set<Class<?>> excludedControllers, TypeTreeGenerator typeTreeGenerator,
                                 Function<String, String> apiSectionNamingStrategy) {
-        this.excludedControllers = excludedControllers;
+        this.excludedControllers = new HashSet<>(excludedControllers);
         this.typeTreeGenerator = typeTreeGenerator;
         this.apiSectionNamingStrategy = apiSectionNamingStrategy;
     }

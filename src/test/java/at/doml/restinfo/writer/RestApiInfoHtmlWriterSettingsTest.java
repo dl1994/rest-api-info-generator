@@ -3,8 +3,10 @@ package at.doml.restinfo.writer;
 import org.junit.Test;
 import java.util.EnumSet;
 import java.util.Set;
+import java.util.function.BiFunction;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
+import static org.mockito.Mockito.mock;
 
 public final class RestApiInfoHtmlWriterSettingsTest {
 
@@ -51,11 +53,34 @@ public final class RestApiInfoHtmlWriterSettingsTest {
                 .stylesheetProvider(stylesheetProvider)
                 .build();
 
-        assertSame("same object is expected", stylesheetProvider, settings.stylesheetProvider);
+        assertSameObjects(stylesheetProvider, settings.stylesheetProvider);
     }
 
     @Test(expected = NullPointerException.class)
     public void restApiInfoHtmlWriterSettingsBuilderShouldThrowExceptionForNullStylesheetProvider() {
         RestApiInfoHtmlWriterSettings.builder().stylesheetProvider(null);
+    }
+
+    @Test
+    public void restApiInfoHtmlWriterSettingsBuilderShouldSetCorrectTypeTreeWriterConstructor() {
+        BiFunction<Appendable, Integer, ? extends AbstractTypeTreeWriter> typeTreeWriterConstructor =
+                (a, i) -> mock(AbstractTypeTreeWriter.class);
+        RestApiInfoHtmlWriterSettings settings = RestApiInfoHtmlWriterSettings.builder()
+                .typeTreeWriterConstructor(typeTreeWriterConstructor)
+                .build();
+
+        assertSameObjects(typeTreeWriterConstructor, settings.typeTreeWriterConstructor);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void restApiInfoHtmlWriterSettingsBuilderShouldThrowExceptionForNullTypeTreeWriterConstructor() {
+        RestApiInfoHtmlWriterSettings.builder().typeTreeWriterConstructor(null);
+    }
+
+    //
+    // ASSERTIONS
+    //
+    private static void assertSameObjects(Object expected, Object actual) {
+        assertSame("same object is expected", expected, actual);
     }
 }
