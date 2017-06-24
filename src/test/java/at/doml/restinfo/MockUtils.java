@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.condition.PatternsRequestCondition;
 import org.springframework.web.servlet.mvc.condition.RequestMethodsRequestCondition;
@@ -38,6 +39,7 @@ final class MockUtils {
         private Class<?> responseBody = void.class;
         private final Map<String, Type> pathVariables = new HashMap<>();
         private final Map<String, Type> modelAttributes = new HashMap<>();
+        private final Map<String, Type> requestParameters = new HashMap<>();
 
         RequestMappingBuilder path(String path) {
             this.path = path;
@@ -66,6 +68,11 @@ final class MockUtils {
 
         RequestMappingBuilder modelAttribute(String name, Type type) {
             this.modelAttributes.put(name, type);
+            return this;
+        }
+
+        RequestMappingBuilder requestParameter(String name, Type type) {
+            this.requestParameters.put(name, type);
             return this;
         }
 
@@ -121,11 +128,14 @@ final class MockUtils {
                     createParameter(name, type, ModelAttribute.class)
             ));
 
+            this.requestParameters.forEach((name, type) -> parameters.add(
+                    createParameter(name, type, RequestParam.class)
+            ));
+
             return parameters.toArray(new MethodParameter[parameters.size()]);
         }
 
-        private static <A extends Annotation> MethodParameter createParameter(String name, Type type,
-                                                                              Class<A> annotation) {
+        private static MethodParameter createParameter(String name, Type type, Class<? extends Annotation> annotation) {
             MethodParameter parameterMock = mock(MethodParameter.class);
 
             when(parameterMock.getParameterName()).thenReturn(name);

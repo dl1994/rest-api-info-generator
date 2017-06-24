@@ -143,6 +143,85 @@ public final class ControllerInfoTest {
                 ));
     }
 
+    @Test
+    public void controllerInfoShouldExtractCorrectRequestParam() {
+        ControllerInfo controllerInfo = controllerInfo(
+                requestMapping().requestParameter("someParam", int.class)
+        );
+
+        new TypeTreeStub(controllerInfo.getQueryParametersTypeTree())
+                .assertStructure(complex(
+                        field("someParam", simple(SimpleType.INT))
+                ));
+    }
+
+    @Test
+    public void controllerInfoShouldExtractCorrectRequestParams() {
+        ControllerInfo controllerInfo = controllerInfo(
+                requestMapping().requestParameter("param1", boolean.class)
+                        .requestParameter("nestedParam", new Object() {
+                            @SuppressWarnings("unused")
+                            public char param2;
+                        }.getClass())
+        );
+
+        new TypeTreeStub(controllerInfo.getQueryParametersTypeTree())
+                .assertStructure(complex(
+                        field("param1", simple(SimpleType.BOOLEAN)),
+                        field("param2", simple(SimpleType.CHAR))
+                ));
+    }
+
+    @Test
+    public void controllerInfoShouldExtractCorrectModelAttributesAndRequestParams() {
+        ControllerInfo controllerInfo = controllerInfo(
+                requestMapping().requestParameter("param1", int.class)
+                        .requestParameter("param2", char.class)
+                        .requestParameter("nestedParams1", new Object() {
+                            @SuppressWarnings("unused")
+                            public long param3;
+                            @SuppressWarnings("unused")
+                            public boolean param4;
+                        }.getClass())
+                        .requestParameter("nestedParams2", new Object() {
+                            @SuppressWarnings("unused")
+                            public String param5;
+                            @SuppressWarnings("unused")
+                            public String param6;
+                        }.getClass())
+                        .modelAttribute("model1", Integer.class)
+                        .modelAttribute("model2", String.class)
+                        .modelAttribute("nestedModel1", new Object() {
+                            @SuppressWarnings("unused")
+                            public Long model3;
+                        }.getClass())
+                        .modelAttribute("nestedModel2", new Object() {
+                            @SuppressWarnings("unused")
+                            public Short model4;
+                            @SuppressWarnings("unused")
+                            public boolean model5;
+                            @SuppressWarnings("unused")
+                            public long model6;
+                        }.getClass())
+        );
+
+        new TypeTreeStub(controllerInfo.getQueryParametersTypeTree())
+                .assertStructure(complex(
+                        field("param1", simple(SimpleType.INT)),
+                        field("param2", simple(SimpleType.CHAR)),
+                        field("param3", simple(SimpleType.LONG)),
+                        field("param4", simple(SimpleType.BOOLEAN)),
+                        field("param5", simple(SimpleType.STRING)),
+                        field("param6", simple(SimpleType.STRING)),
+                        field("model1", simple(SimpleType.BOXED_INT)),
+                        field("model2", simple(SimpleType.STRING)),
+                        field("model3", simple(SimpleType.BOXED_LONG)),
+                        field("model4", simple(SimpleType.BOXED_SHORT)),
+                        field("model5", simple(SimpleType.BOOLEAN)),
+                        field("model6", simple(SimpleType.LONG))
+                ));
+    }
+
     //
     // HELPER METHODS
     //

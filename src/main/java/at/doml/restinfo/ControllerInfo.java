@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import java.lang.annotation.Annotation;
@@ -54,11 +55,14 @@ public final class ControllerInfo {
         );
         this.pathVariablesTypeTree = generateTree(
                 typeTreeGenerator,
-                getAllParametersForAnnotation(handlerMethod, PathVariable.class)
+                toMap(filterTypesForAnnotation(handlerMethod, PathVariable.class))
         );
         this.queryParametersTypeTree = generateTree(
                 typeTreeGenerator,
-                getAllParametersForAnnotation(handlerMethod, ModelAttribute.class) // TODO support for RequestParameter
+                toMap(Stream.concat(
+                        filterTypesForAnnotation(handlerMethod, ModelAttribute.class),
+                        filterTypesForAnnotation(handlerMethod, RequestParam.class)
+                ))
         );
         this.path = requestMappingInfo.getPatternsCondition()
                 .getPatterns()
@@ -88,10 +92,11 @@ public final class ControllerInfo {
                 .orElse(null);
     }
 
-    private static Map<String, Type> getAllParametersForAnnotation(HandlerMethod handlerMethod,
-                                                                   Class<? extends Annotation> annotation) {
-        Map<String, Type> map = filterTypesForAnnotation(handlerMethod, annotation)
-                .collect(Collectors.toMap(MethodParameter::getParameterName, MethodParameter::getGenericParameterType));
+    private static Map<String, Type> toMap(Stream<MethodParameter> stream) {
+        Map<String, Type> map = stream.collect(Collectors.toMap(
+                MethodParameter::getParameterName,
+                MethodParameter::getGenericParameterType
+        ));
         return map.isEmpty() ? null : map;
     }
 
